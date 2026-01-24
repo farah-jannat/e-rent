@@ -1,0 +1,49 @@
+name: erent
+
+services:
+  # ==================================== Infrastructure ==============================
+
+  erent-db:
+    container_name: erent-db-container
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${ERENT_PG_DB_USER}
+      - POSTGRES_PASSWORD=${ERENT_PG_DB_PWD}
+      - POSTGRES_DB=${ERENT_PG_DB_NAME}
+
+  # ==================================== Application Services ==============================
+
+  erent-client:
+    container_name: erent-client-container
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    image: asiful087/erent-client
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - erent-backend
+
+  erent-backend:
+    container_name: erent-backend-container
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    image: asiful087/erent-backend
+    restart: always
+    ports:
+      - 4001:4001
+    environment:
+      - NODE_ENV=${ERENT_NODE_ENV}
+      - CLIENT_URL=${ERENT_CLIENT_URL}
+      - SECRET_KEY=${ERENT_SECRET_KEY}
+      - CLOUD_NAME=${ERENT_CLOUD_NAME}
+      - API_KEY=${ERENT_API_KEY}
+      - API_SECRET=${ERENT_API_SECRET}
+      - DATABASE_URL=${ERENT_DB_URL}
+      - JWT_TOKEN=${NIYOG_JWT_TOKEN}
+
+    depends_on:
+      - erent-db

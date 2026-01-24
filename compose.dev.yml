@@ -1,0 +1,79 @@
+name: erent-dev
+
+services:
+  # ==================================== Infrastructure ==============================
+
+  erent-db:
+    container_name: erent-db-container
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${ERENT_PG_DB_USER}
+      - POSTGRES_PASSWORD=${ERENT_PG_DB_PWD}
+      - POSTGRES_DB=${ERENT_PG_DB_NAME}
+
+  # ==================================== Application Services ==============================
+
+  erent-client:
+    container_name: erent-client-container
+    build:
+      context: frontend
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - NEXT_PUBLIC_BASE_ENDPOINT=${ERENT_BASE_ENDPOINT}
+      # - NEXT_PUBLIC_SOCKET_ENDPOINT=${SOCKET_ENDPOINT}
+
+    volumes:
+      - ./frontend:/home/app
+      - /home/app/node_modules
+    depends_on:
+      - erent-backend
+    user: "${UID}:${GID}"
+
+  erent-backend:
+    container_name: erent-backend-container
+    build:
+      context: backend
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - 4001:4001
+    environment:
+      - NODE_ENV=${ERENT_NODE_ENV}
+      - CLIENT_URL=${ERENT_CLIENT_URL}
+      - SECRET_KEY=${ERENT_SECRET_KEY}
+      - CLOUD_NAME=${ERENT_CLOUD_NAME}
+      - CLOUD_API_KEY=${ERENT_CLOUD_API_KEY}
+      - CLOUD_API_SECRET=${ERENT_CLOUD_API_SECRET}
+      - DATABASE_URL=${ERENT_DB_URL}
+      - JWT_TOKEN=${NIYOG_JWT_TOKEN}
+    volumes:
+      - ./backend:/home/app
+      - /home/app/node_modules
+
+    depends_on:
+      - erent-db
+
+    # 🌟 ADDED UID/GID MAPPING 🌟
+    user: "${UID}:${GID}"
+
+  erent-studio:
+    container_name: niyo-zone-studio-container
+    build:
+      context: backend
+      dockerfile: Dockerfile.studio
+    restart: always
+    ports:
+      - 4983:4983
+    environment:
+      - DATABASE_URL=${ERENT_DB_URL}
+    # profiles: ["studio"]
+    volumes:
+      - ./backend:/home/app
+    depends_on:
+      - erent-db
+      - erent-backend
+    user: "${UID}:${GID}"
