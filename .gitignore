@@ -1,0 +1,39 @@
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+.next
+
+build
+*.tgz
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+# core.*
+
+# dotenv environment variable files
+.env
+.env.production
+.env.development
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# Finder (MacOS) folder config
+.DS_Store
+
+# docker volumes
