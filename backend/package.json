@@ -2,6 +2,18 @@
   "name": "backend",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start": "bun run dist/migrate.js && bun dist/index.js",
+    "dev": "bun --watch src/index.ts",
+    "build": "bun run build:app && bun run build:migrate",
+    "build:app": "bun build src/index.ts --outdir ./dist --target bun --minify",
+    "build:migrate": "bun build drizzle/migrate.ts --outdir ./dist --target bun --minify",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:drop": "drizzle-kit drop",
+    "db:studio": "drizzle-kit studio"
+  },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest"
