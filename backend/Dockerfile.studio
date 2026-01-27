@@ -1,0 +1,11 @@
+FROM node:21-alpine3.18
+
+WORKDIR /home/app
+
+COPY package*.json .
+
+COPY . . 
+
+EXPOSE 4983
+
+CMD ["npx", "drizzle-kit", "studio", "--host", "0.0.0.0", "--port", "4983" ]
