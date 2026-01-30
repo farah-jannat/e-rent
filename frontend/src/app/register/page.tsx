@@ -3,7 +3,7 @@ import React from 'react'
 
 const registerPage = () => {
   return (
-    <div>registerPage
+    <div className='w-[50%] mx-[100px] my-[50px]'>
         <RegisterForm/>
     </div>
   )
