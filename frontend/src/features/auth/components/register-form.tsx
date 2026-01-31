@@ -16,14 +16,13 @@ import { Controller, Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useRegisterLandlordMutation from "@/features/auth/mutations/use-register.mutation";
 import { register } from "@/features/auth/api/mutations.api";
+import { Button } from "@/components/ui/button";
 
 const RegisterForm = () => {
+  // --- * Mutaiton * ---
+  const { mutate: register, isPending } = useRegisterLandlordMutation();
 
-// --- * Mutaiton * ---
-
-const {mutate:register, isPending} = useRegisterLandlordMutation() 
-
-
+  // --- *initialize form* ---
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(registerSchema) as Resolver<RegisterSchemaType>,
     defaultValues: {
@@ -34,13 +33,19 @@ const {mutate:register, isPending} = useRegisterLandlordMutation()
     },
   });
 
-
-
   return (
     <div>
-      <form id="form-rhf-demo" onSubmit={form.handleSubmit((data)=>register(data))}>
-      {/* <form id="form-rhf-demo"  onSubmit={form.handleSubmit((data) => console.log("... data is ", data))}> */}
-
+      <form
+        id="form-rhf-demo"
+        onSubmit={form.handleSubmit((data) => register(data))}
+      >
+        {/* <form
+        id="form-rhf-demo"
+        onSubmit={form.handleSubmit(
+          (data) => console.log("... data is ", data),
+          (errors) => console.log("Validation Errors:", errors),
+        )}
+      > */}
         <FieldGroup>
           <Controller
             name="name"
@@ -87,7 +92,9 @@ const {mutate:register, isPending} = useRegisterLandlordMutation()
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="form-rhf-demo-title">PhoneNumber</FieldLabel>
+                <FieldLabel htmlFor="form-rhf-demo-title">
+                  PhoneNumber
+                </FieldLabel>
                 <Input
                   {...field}
                   id="form-rhf-demo-title"
@@ -122,7 +129,19 @@ const {mutate:register, isPending} = useRegisterLandlordMutation()
           />
         </FieldGroup>
 
-        <button type="submit" className="px-[12px] py-[4px] bg-purple-900 rounded-[8px]">submit</button>
+        {/* <button
+          type="submit"
+          className="px-[12px] py-[4px] bg-purple-900 rounded-[8px] mt-[16px] cursor-pointer"
+        >
+          submit
+        </button> */}
+
+        <Button
+          type="submit"
+          className="px-[12px] py-[4px] bg-purple-900 rounded-[8px] mt-[16px] cursor-pointer"
+        >
+          Register
+        </Button>
       </form>
     </div>
   );
