@@ -1,8 +1,9 @@
-import { register } from "@/controllers/landlord.controller";
+import { login, register } from "@/controllers/landlord.controller";
 import { Router } from "express";
 
-const authRouter = Router()
+const authRouter = Router();
 
-authRouter.post('/register', register)
+authRouter.post("/register", register);
+authRouter.post(`/login`, login);
 
-export default authRouter
+export default authRouter;
