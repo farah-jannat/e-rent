@@ -9,8 +9,3 @@ export const registerSchema = z.object({
 
 export type RegisterSchemaType = z.infer<typeof registerSchema>;
 
-export interface RegisterApi {
-  message: string;
-  // user: User;
-  token: string;
-}
