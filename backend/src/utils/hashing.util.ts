@@ -8,3 +8,11 @@ export const hashPassword = async (plainTextPassword: string) => {
   });
   return hashedPassword;
 };
+
+export const verifyPassword = async (
+  plainTextPassword: string,
+  hashedPassword: string,
+) => {
+  const isMatch = await password.verify(plainTextPassword, hashedPassword);
+  return isMatch;
+};
