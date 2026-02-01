@@ -9,10 +9,12 @@ import {
   verifyGatewayToken,
 } from "@fvoid/shared-lib";
 import cookieSession from "cookie-session";
-import authRouter from "@/routes/auth.router";
 
 // ** Local Imports
 import { config } from "@/config";
+import authRouter from "@/routes/auth.router";
+import flatRouter from "@/routes/flat.router";
+import { getSession } from "@/middlewares/get-session.middleware";
 // import healthRouter from "@/routes/health.router";
 // import userRouter from "@/routes/user.router";
 // import jobRouter from "@/routes/job.router";
@@ -74,8 +76,8 @@ class AuthService {
       }),
     );
 
-    // this.app.use(getSession);
-    // this.app.use(verifyGatewayToken(config.GATEWAY_JWT_TOKEN, "auth"));
+    this.app.use(getSession);
+    this.app.use(verifyGatewayToken(config.GATEWAY_JWT_TOKEN, "auth"));
   }
 
   private set_route_middlewares() {
@@ -83,6 +85,7 @@ class AuthService {
     const BASE_PATH = "/api/v1";
     // this.app.use(healthRouter);
     this.app.use(`${BASE_PATH}/auth`, authRouter);
+    this.app.use(`${BASE_PATH}/flat`, flatRouter);
     // this.app.use(`${BASE_PATH}/seed`, seedRouter);
     // this.app.use(`${BASE_PATH}/users`, userRouter);
     // this.app.use(`${BASE_PATH}/profiles`, profileRouter);
@@ -102,7 +105,7 @@ class AuthService {
   private start_server() {
     const PORT = 4001;
     this.app.listen(PORT, () => {
-      console.log(`Auth server is running on port ${PORT}`);
+      console.log(`Erent server is running on port ${PORT}`);
     });
   }
 }
