@@ -15,3 +15,4 @@ export const apiService = (serviceRelativePath: string): AxiosInstance => {
 };
 
 export const auth__axios = apiService("/auth");
+export const flat__axios = apiService("/flat")
