@@ -77,7 +77,7 @@ class AuthService {
     );
 
     this.app.use(getSession);
-    this.app.use(verifyGatewayToken(config.GATEWAY_JWT_TOKEN, "auth"));
+    // this.app.use(verifyGatewayToken(config.GATEWAY_JWT_TOKEN, "auth"));
   }
 
   private set_route_middlewares() {
