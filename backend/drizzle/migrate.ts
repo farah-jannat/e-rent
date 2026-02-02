@@ -2,8 +2,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
 
-export const catchError = async <T, E = Error>(
-  promise: Promise<T>
+const catchError = async <T, E = Error>(
+  promise: Promise<T>,
 ): Promise<[E | null, T | null]> => {
   try {
     const result = await promise;
@@ -31,7 +31,7 @@ async function runMigrations() {
   console.log("--- Starting Drizzle Migrations (migrate.ts) ---");
 
   const [error, su] = await catchError(
-    migrate(db, { migrationsFolder: "./migrations" })
+    migrate(db, { migrationsFolder: "./migrations" }),
   );
 
   if (su) console.log("--- Migrations finished successfully ---");
