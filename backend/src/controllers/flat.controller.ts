@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { flats } from "@/schemas";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
-import { catchError, NotAuthorizedError } from "@fvoid/shared-lib";
-import { and, eq } from "drizzle-orm";
+import { catchError, handleAsync, NotAuthorizedError } from "@fvoid/shared-lib";
+import { and, count, eq } from "drizzle-orm";
 import type { Request, Response } from "express";
 
 export const registerFlat = async (req: Request, res: Response) => {
@@ -37,4 +37,23 @@ export const registerFlat = async (req: Request, res: Response) => {
       message: "Account created successfully",
     });
   }
+};
+
+export const getFlats = async (req: Request, res: Response) => {
+  const landlord = req.landlord;
+  console.log("from the getflats");
+
+  if (!landlord) throw new NotAuthorizedError();
+
+  const [flatError, allFlats] = await catchError(
+    db.select().from(flats).where(eq(flats.landlordId, landlord.id)),
+  );
+
+  if (flatError) throw new Error("error getting flat in db", flatError);
+  if (!allFlats) throw new Error("error getting flats");
+
+  return res.json({
+    data: allFlats,
+    message: "Brought all flats for you :) happyyyy",
+  });
 };
