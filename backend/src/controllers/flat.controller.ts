@@ -6,9 +6,8 @@ import { and, eq } from "drizzle-orm";
 import type { Request, Response } from "express";
 
 export const registerFlat = async (req: Request, res: Response) => {
-  console.log("hello this is form register flat req.body", req.body)
   const landlord = req.landlord;
-  console.log("llndlord ##########################",landlord)
+
   if (!landlord) throw new NotAuthorizedError();
   const formdata = req.body as RegisterFlatInput;
 
@@ -30,12 +29,12 @@ export const registerFlat = async (req: Request, res: Response) => {
         landlordId: landlord.id.toString(),
       }),
     );
-  }
-  if (flat) {
+    if (flatError) throw new Error("error inserting flat in db", flatError);
+
+    if (!flat) throw new Error("error inserting flat in db");
+
     return res.json({
       message: "Account created successfully",
     });
   }
-
-  throw new Error("Db error registerring flat");
 };
