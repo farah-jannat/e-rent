@@ -12,4 +12,4 @@ export const flatSchema = z.object({
   isOccupied: z.boolean(),
 });
 
-export type FlatSchemaType = z.infer<typeof flatSchema>;
+export type Flat = z.infer<typeof flatSchema>;
