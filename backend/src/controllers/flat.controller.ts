@@ -53,7 +53,6 @@ export const getFlats = async (req: Request, res: Response) => {
   if (!allFlats) throw new Error("error getting flats");
 
   return res.json({
-    data: allFlats,
-    message: "Brought all flats for you :) happyyyy",
+    flats: allFlats,
   });
 };
