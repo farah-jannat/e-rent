@@ -1,4 +1,6 @@
 "use client";
+import { deleteFlat } from "@/features/flat/api/mutation.api";
+import useFlatDeleteMutation from "@/features/flat/mutations/use-flat-delete.mutation";
 import { useFlatsQuery,} from "@/features/flat/queries/use-flats.query";
 import { Delete } from "lucide-react";
 import React from "react";
@@ -9,7 +11,7 @@ const Flats = () => {
 
   
   //---* Mutation *---
-  // const {} = 
+  const {mutate:deleteFlat} = useFlatDeleteMutation() 
 
   return (
     <div className="mx-[100px] my-[50px]">
@@ -21,7 +23,7 @@ const Flats = () => {
             key={flat.id}
           >
             <p> {flat?.name}</p>{" "}
-            <div>
+            <div onClick={()=>deleteFlat(flat.id)}>
               <Delete />
             </div>
           </div>
