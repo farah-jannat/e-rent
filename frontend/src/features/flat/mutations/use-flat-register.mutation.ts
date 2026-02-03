@@ -10,7 +10,7 @@ const useFlatRegisterMutation = () => {
     mutationFn: (data: RegisterFlatSchemaType) => registerFlat(data),
     onSuccess() {
       toast.success(`succesfully regesterd your flat `);
-      router.push(`/`);
+      router.push(`/flats`);
     },
     onError() {
       toast.error("Error Registereing Flat :( !");
