@@ -56,3 +56,21 @@ export const getFlats = async (req: Request, res: Response) => {
     flats: allFlats,
   });
 };
+
+export const deleteFlat = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  console.log("flat-id***********8", id);
+  if (!id) {
+    throw new Error("No flatId provided");
+  }
+  const [flatError, flat] = await catchError(
+    db.delete(flats).where(eq(flats.id, id)),
+  );
+  if (flatError) throw new Error("error deleting flat!", flatError);
+  if (!flat) throw new Error("flat not found");
+
+  return res.json({
+    flat: flat,
+  });
+};
