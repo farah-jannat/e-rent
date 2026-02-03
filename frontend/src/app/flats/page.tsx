@@ -1,11 +1,15 @@
 "use client";
-import { useJobQuery } from "@/features/flat/queries/use-jobs.query";
+import { useFlatsQuery,} from "@/features/flat/queries/use-flats.query";
 import { Delete } from "lucide-react";
 import React from "react";
 
 const Flats = () => {
   //---*Queries *---
-  const { data, isPending, error } = useJobQuery();
+  const { data, isPending, error } = useFlatsQuery();
+
+  
+  //---* Mutation *---
+  // const {} = 
 
   return (
     <div className="mx-[100px] my-[50px]">
