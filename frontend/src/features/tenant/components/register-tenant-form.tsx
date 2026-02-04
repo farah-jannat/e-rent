@@ -41,7 +41,8 @@ const TenantRegisterForm = () => {
     defaultValues: {
       name: "",
       phone: "",
-      flat: "",
+      email: "",
+      flatId: "",
     },
   });
 
@@ -64,9 +65,7 @@ const TenantRegisterForm = () => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="form-rhf-demo-title">
-                  Tenant Name
-                </FieldLabel>
+                <FieldLabel htmlFor="form-rhf-demo-title">Name</FieldLabel>
                 <Input
                   {...field}
                   id="form-rhf-demo-title"
@@ -86,9 +85,7 @@ const TenantRegisterForm = () => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="form-rhf-demo-title">
-                  Tenant Number
-                </FieldLabel>
+                <FieldLabel htmlFor="form-rhf-demo-title">Number</FieldLabel>
                 <Input
                   {...field}
                   id="form-rhf-demo-title"
@@ -104,7 +101,27 @@ const TenantRegisterForm = () => {
           />
 
           <Controller
-            name="flat"
+            name="email"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="form-rhf-demo-title">Email</FieldLabel>
+                <Input
+                  {...field}
+                  id="form-rhf-demo-title"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="tenant@gmail.com"
+                  autoComplete="off"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="flatId"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>

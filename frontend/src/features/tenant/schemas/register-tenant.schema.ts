@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { email, z } from "zod";
 
 export const registerTenantSchema = z.object({
   // id: z
@@ -7,8 +7,9 @@ export const registerTenantSchema = z.object({
   //   .describe("Unique identifier for the job, auto-generated UUID."),
   name: z.string().min(1, "fullname is required"),
   phone: z.string(),
-//   landlordId: z.string(),
-  flat: z.string(),
+  email: z.string(),
+  //   landlordId: z.string(),
+  flatId: z.string(),
 });
 
 export type RegisterTenantSchemaType = z.infer<typeof registerTenantSchema>;
