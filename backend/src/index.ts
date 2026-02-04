@@ -87,6 +87,7 @@ class AuthService {
     // this.app.use(healthRouter);
     this.app.use(`${BASE_PATH}/auth`, authRouter);
     this.app.use(`${BASE_PATH}/flat`, flatRouter);
+    this.app.use(`${BASE_PATH}/tenant`, tenantRouter);
     // this.app.use(`${BASE_PATH}/seed`, seedRouter);
     // this.app.use(`${BASE_PATH}/users`, userRouter);
     // this.app.use(`${BASE_PATH}/profiles`, profileRouter);
