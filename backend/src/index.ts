@@ -14,6 +14,7 @@ import cookieSession from "cookie-session";
 import { config } from "@/config";
 import authRouter from "@/routes/auth.router";
 import flatRouter from "@/routes/flat.router";
+import tenantRouter from "@/routes/tenant.router";
 import { getSession } from "@/middlewares/get-session.middleware";
 // import healthRouter from "@/routes/health.router";
 // import userRouter from "@/routes/user.router";
