@@ -1,6 +1,9 @@
 import { db } from "@/db";
 import { tenants } from "@/schemas";
-import type { RegisterTenantInput } from "@/validations/tenant.validation";
+import type {
+  RegisterTenantInput,
+  TenantInput,
+} from "@/validations/tenant.validation";
 import { catchError, NotAuthorizedError } from "@fvoid/shared-lib";
 import { and, eq } from "drizzle-orm";
 import type { Request, Response } from "express";
@@ -78,5 +81,30 @@ export const getTenant = async (req: Request, res: Response) => {
     throw new Error("tenant not found with this id! -_-");
   }
 
+  return res.json(tenant);
+};
+
+export const updateTenant = async (req: Request, res: Response) => {
+  const formData = req.body as TenantInput;
+  const [tenantError, oldTenant] = await catchError(
+    db.query.tenants.findFirst({
+      where: and(
+        eq(tenants.id, formData.id),
+        eq(tenants.landlordId, formData.landlordId),
+      ),
+    }),
+  );
+  if (tenantError) throw new Error("Db errro!");
+  const [errTenantUpdate, tenant] = await catchError(
+    db
+      .update(tenants)
+      .set(formData)
+      .where(eq(tenants.id, formData.id))
+      .returning(),
+  );
+  if (errTenantUpdate)
+    console.log(
+      "######################3 Db error updating jobs " + errTenantUpdate,
+    );
   return res.json(tenant);
 };

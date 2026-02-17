@@ -3,6 +3,7 @@ import {
   getTenant,
   getTenants,
   registerTenant,
+  updateTenant,
 } from "@/controllers/tenant.controller";
 import { verifyClientToken } from "@/middlewares/verify-client-token.middleware";
 import { Router } from "express";
@@ -26,6 +27,14 @@ tenantRouter.get(
 
   verifyClientToken(config.JWT_TOKEN),
   getTenant,
+);
+
+tenantRouter.put(
+  "/",
+
+  verifyClientToken(config.JWT_TOKEN),
+
+  updateTenant,
 );
 
 export default tenantRouter;
