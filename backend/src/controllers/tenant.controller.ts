@@ -5,7 +5,7 @@ import type {
   TenantInput,
 } from "@/validations/tenant.validation";
 import { catchError, NotAuthorizedError } from "@fvoid/shared-lib";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import type { Request, Response } from "express";
 
 export const registerTenant = async (req: Request, res: Response) => {
@@ -19,9 +19,11 @@ export const registerTenant = async (req: Request, res: Response) => {
   const [tenantError, tenant] = await catchError(
     db.query.tenants.findFirst({
       where: and(
-        eq(tenants.email, formData.email),
         eq(tenants.landlordId, landlord.id),
-        // eq(tenants.flatId, formData.flatId),
+        or(
+          eq(tenants.email, formData.email),
+          eq(tenants.flatId, formData.flatId),
+        ),
       ),
     }),
   );
