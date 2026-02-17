@@ -1,5 +1,5 @@
 import { config } from "@/config";
-import { registerTenant } from "@/controllers/tenant.controller";
+import { getTenants, registerTenant } from "@/controllers/tenant.controller";
 import { verifyClientToken } from "@/middlewares/verify-client-token.middleware";
 import { Router } from "express";
 
@@ -9,6 +9,13 @@ tenantRouter.post(
   "/register",
   verifyClientToken(config.JWT_TOKEN),
   registerTenant,
+);
+
+tenantRouter.get(
+  "/tenants",
+
+  verifyClientToken(config.JWT_TOKEN),
+  getTenants,
 );
 
 export default tenantRouter;
