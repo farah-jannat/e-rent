@@ -1,8 +1,11 @@
 "use client";
 import { useTenantsQuery } from "@/features/tenant/queries/use-tenants.query";
+import { Edit2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const Tenants = () => {
+  const router = useRouter();
   // ---* queries * ---
   const { data, isPending } = useTenantsQuery();
   console.log("data here of tenants", data);
@@ -17,9 +20,9 @@ const Tenants = () => {
             <p>{tenant?.email}</p>
             <p>{tenant?.phone}</p>
             {/* <p>{tenant?.flatId}</p> */}
-            {/* <div onClick={()=>deleteFlat(flat.id)}>
-              <Delete />
-            </div> */}
+            <div onClick={() => router.push(`/tenants/edit/${tenant?.id}`)}>
+              <Edit2 />
+            </div>
           </div>
         ))}
     </div>
