@@ -1,8 +1,15 @@
 import { flat__axios, tenant__axios } from "@/axios.service";
 import { RegisterTenantSchemaType } from "@/features/tenant/schemas/register-tenant.schema";
+import { Tenant } from "@/features/tenant/schemas/tenant.schema";
 
 export const registerTenant = async (data: RegisterTenantSchemaType) => {
-  console.log("data from register tenant api", data);
+  // console.log("data from register tenant api", data);
   const response = await tenant__axios.post(`/register`, data);
+  return response.data;
+};
+
+export const editTenant = async (data: Tenant) => {
+  console.log("data from edit tenant api", data);
+  const response = await tenant__axios.put(`/`, data);
   return response.data;
 };
