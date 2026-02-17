@@ -1,6 +1,8 @@
 "use client";
+import { archiveTenant } from "@/features/tenant/api/mutation.api";
+import useTenantArchiveMutation from "@/features/tenant/mutations/use-tenant-archive.mutation";
 import { useTenantsQuery } from "@/features/tenant/queries/use-tenants.query";
-import { Edit2 } from "lucide-react";
+import { Delete, Edit2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -9,6 +11,9 @@ const Tenants = () => {
   // ---* queries * ---
   const { data, isPending } = useTenantsQuery();
   console.log("data here of tenants", data);
+
+  // ---* mutation * ---
+  const { mutate: archiveTenant } = useTenantArchiveMutation();
 
   return (
     <div className="mx-[100px] my-[50px]">
@@ -22,6 +27,10 @@ const Tenants = () => {
             {/* <p>{tenant?.flatId}</p> */}
             <div onClick={() => router.push(`/tenants/edit/${tenant?.id}`)}>
               <Edit2 />
+            </div>
+
+            <div onClick={() => archiveTenant(tenant.id)}>
+              <Delete />
             </div>
           </div>
         ))}

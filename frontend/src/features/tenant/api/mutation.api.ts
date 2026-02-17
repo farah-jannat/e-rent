@@ -13,3 +13,9 @@ export const editTenant = async (data: Tenant) => {
   const response = await tenant__axios.put(`/`, data);
   return response.data;
 };
+
+export const archiveTenant = async (id: string) => {
+  console.log("data from arcive tenant api", id);
+  const response = await tenant__axios.put(`/${id}`);
+  return response.data;
+};
