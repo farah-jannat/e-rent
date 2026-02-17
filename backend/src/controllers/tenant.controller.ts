@@ -8,12 +8,11 @@ import type { Request, Response } from "express";
 export const registerTenant = async (req: Request, res: Response) => {
   const landlord = req.landlord;
 
-  console.log("$$$$$$$$$4landlord",landlord)
+  console.log("$$$$$$$$$4landlord", landlord);
   if (!landlord) throw new NotAuthorizedError();
   const formData = req.body as RegisterTenantInput;
 
-
-  console.log("formdata", formData)
+  console.log("formdata", formData);
   const [tenantError, tenant] = await catchError(
     db.query.tenants.findFirst({
       where: and(
@@ -59,4 +58,25 @@ export const getTenants = async (req: Request, res: Response) => {
   return res.json({
     tenants: allTenants,
   });
+};
+
+export const getTenant = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  console.log("tenant-id***********8", id);
+  if (!id) {
+    throw new Error("No tenant Id provided");
+  }
+  const [tenantError, tenant] = await catchError(
+    db.query.tenants.findFirst({
+      where: eq(tenants?.id, id),
+    }),
+  );
+
+  if (tenantError) throw new Error("DB error!");
+  if (!tenant) {
+    throw new Error("tenant not found with this id! -_-");
+  }
+
+  return res.json(tenant);
 };
