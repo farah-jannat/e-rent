@@ -108,3 +108,30 @@ export const updateTenant = async (req: Request, res: Response) => {
     );
   return res.json(tenant);
 };
+
+export const archiveTenant = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+  console.log("arhive tenant id $$$$$$$$$$$$4", id);
+
+  const [tenantError, oldTenant] = await catchError(
+    db.query.tenants.findFirst({
+      where: eq(tenants.id, id),
+    }),
+  );
+  if (tenantError) throw new Error("db Error");
+  if (!oldTenant) throw new Error("tenant is not found with this id");
+
+  const [errArchiveTenant, tenant] = await catchError(
+    db
+      .update(tenants)
+      .set({ isArchived: true })
+      .where(eq(tenants.id, id))
+      .returning(),
+  );
+
+  if (errArchiveTenant)
+    console.log(
+      "######################3 Db error updating jobs " + errArchiveTenant,
+    );
+  return res.json(tenant);
+};
