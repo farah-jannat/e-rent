@@ -52,7 +52,12 @@ export const getTenants = async (req: Request, res: Response) => {
   if (!landlord) throw new NotAuthorizedError();
 
   const [TenantError, allTenants] = await catchError(
-    db.select().from(tenants).where(eq(tenants.landlordId, landlord.id)),
+    db
+      .select()
+      .from(tenants)
+      .where(
+        and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, false)),
+      ),
   );
 
   if (TenantError) throw new Error("error getting tenants in db", TenantError);
