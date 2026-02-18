@@ -1,4 +1,4 @@
-import { flat__axios, tenant__axios } from "@/axios.service";
+import { tenant__axios } from "@/axios.service";
 import { RegisterTenantSchemaType } from "@/features/tenant/schemas/register-tenant.schema";
 import { Tenant } from "@/features/tenant/schemas/tenant.schema";
 
@@ -24,5 +24,11 @@ export const deleteTenant = async (id: string) => {
   console.log("id to delete tenant", id);
   const response = await tenant__axios.delete<Tenant>(`/${id}`);
   console.log("response of delete", response.data);
+  return response.data;
+};
+
+export const restoreTenant = async (id: string) => {
+  console.log("id to restore tenant", id);
+  const response = await tenant__axios.put<Tenant>(`/archive/${id}`);
   return response.data;
 };

@@ -1,6 +1,10 @@
 "use client";
-import { deleteTenant } from "@/features/tenant/api/mutation.api";
+import {
+  deleteTenant,
+  restoreTenant,
+} from "@/features/tenant/api/mutation.api";
 import useTenantDeleteMutation from "@/features/tenant/mutations/use-tenant-delete.mutation";
+import useTenantRestoreMutation from "@/features/tenant/mutations/use-tenant-restore.mutation";
 import { useArchivedTenantQuery } from "@/features/tenant/queries/use-archivedTenants.query";
 import { DeleteIcon, Edit2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -15,6 +19,8 @@ const Archive = () => {
 
   // * --- mutaion --- *
   const { mutate: deleteTenant } = useTenantDeleteMutation();
+
+  const { mutate: restoreTenant } = useTenantRestoreMutation();
 
   return (
     <div>
@@ -32,7 +38,7 @@ const Archive = () => {
           <div onClick={() => deleteTenant(tenant?.id)}>
             <DeleteIcon />
           </div>
-          <div>Restore</div>
+          <div onClick={() => restoreTenant(tenant?.id)}>Restore</div>
         </div>
       ))}
     </div>
