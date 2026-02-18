@@ -1,6 +1,8 @@
 import { config } from "@/config";
 import {
   archiveTenant,
+  deleteTenant,
+  getArchivedTenants,
   getTenant,
   getTenants,
   registerTenant,
@@ -44,5 +46,20 @@ tenantRouter.put(
   verifyClientToken(config.JWT_TOKEN),
 
   archiveTenant,
+);
+
+tenantRouter.get(
+  "/archive",
+
+  verifyClientToken(config.JWT_TOKEN),
+
+  getArchivedTenants,
+);
+
+tenantRouter.delete(
+  `/:id`,
+
+  verifyClientToken(config.JWT_TOKEN),
+  deleteTenant,
 );
 export default tenantRouter;

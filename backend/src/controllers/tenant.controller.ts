@@ -142,3 +142,40 @@ export const archiveTenant = async (req: Request, res: Response) => {
     );
   return res.json(tenant);
 };
+
+export const getArchivedTenants = async (req: Request, res: Response) => {
+  const landlord = req.landlord;
+  console.log("from the getTenants", landlord);
+
+  if (!landlord) throw new NotAuthorizedError();
+
+  const [TenantError, archivedTenants] = await catchError(
+    db
+      .select()
+      .from(tenants)
+      .where(
+        and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, true)),
+      ),
+  );
+
+  if (TenantError) throw new Error("error getting tenants in db", TenantError);
+  if (!archivedTenants) throw new Error("tenants are not available");
+
+  return res.json({ tenants: archivedTenants });
+};
+
+export const deleteTenant = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  console.log("tennat-id***********8", id);
+  if (!id) {
+    throw new Error("No tenantId provided");
+  }
+  const [tenantError, tenant] = await catchError(
+    db.delete(tenants).where(eq(tenants.id, id)),
+  );
+  if (tenantError) throw new Error("db error !", tenantError);
+  if (!tenant) throw new Error("error deleteing tenant");
+
+  return res.json(tenant);
+};
