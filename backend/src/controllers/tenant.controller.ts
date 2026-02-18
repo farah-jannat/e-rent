@@ -179,3 +179,32 @@ export const deleteTenant = async (req: Request, res: Response) => {
 
   return res.json(tenant);
 };
+
+export const restoreTenant = async (req: Request, res: Response) => {
+  const landlord = req.landlord;
+  const { id } = req.params as { id: string };
+
+  console.log("from the getTenants", landlord);
+
+  if (!landlord) throw new NotAuthorizedError();
+
+  const [tenantError, oldTenant] = await catchError(
+    db.query.tenants.findFirst({
+      where: and(eq(tenants.id, id), eq(tenants.landlordId, landlord.id)),
+    }),
+  );
+  if (tenantError) throw new Error("Db errro!");
+
+  const [errRestoreTenant, tenant] = await catchError(
+    db
+      .update(tenants)
+      .set({ isArchived: false })
+      .where(eq(tenants.id, id))
+      .returning(),
+  );
+  if (errRestoreTenant)
+    console.log(
+      "######################3 Db error updating jobs " + errRestoreTenant,
+    );
+  return res.json(tenant);
+};
