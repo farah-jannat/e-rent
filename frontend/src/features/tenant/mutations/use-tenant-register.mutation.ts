@@ -10,7 +10,7 @@ const useTenantRegisterMutation = () => {
     mutationFn: (data: RegisterTenantSchemaType) => registerTenant(data),
     onSuccess() {
       toast.success(`succesfully regesterd your tenant`);
-      router.push(`/tenants`);
+      // router.push(`/tenants`);
     },
     onError() {
       toast.error("Error Registereing tenant :( !");
