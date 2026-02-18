@@ -19,3 +19,10 @@ export const archiveTenant = async (id: string) => {
   const response = await tenant__axios.put(`/${id}`);
   return response.data;
 };
+
+export const deleteTenant = async (id: string) => {
+  console.log("id to delete tenant", id);
+  const response = await tenant__axios.delete<Tenant>(`/${id}`);
+  console.log("response of delete", response.data);
+  return response.data;
+};
