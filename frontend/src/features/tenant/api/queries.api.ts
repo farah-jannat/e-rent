@@ -11,10 +11,16 @@ export const getTenants = async () => {
   return response.data;
 };
 
-
-export const getTenant = async (id:string) => {
-  console.log("form gettenant api",id);
+export const getTenant = async (id: string) => {
+  console.log("form gettenant api", id);
   const response = await tenant__axios.get<Tenant>(`/tenants/${id}`);
+  console.log("tenat info", response.data);
+  return response.data;
+};
+
+export const getArchivedTenants = async () => {
+  console.log("form arivecd tenants");
+  const response = await tenant__axios.get<TenantsResponse>(`/archive`);
   console.log("tenat info", response.data);
   return response.data;
 };
