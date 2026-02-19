@@ -27,10 +27,8 @@ const FlatRegisterForm = () => {
       registerFlatSchema,
     ) as Resolver<RegisterFlatSchemaType>,
     defaultValues: {
-      id: "",
       name: "",
       baseRent: 0,
-      landlordId: "",
     },
   });
 
