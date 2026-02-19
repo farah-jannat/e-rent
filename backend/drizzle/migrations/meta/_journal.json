@@ -8,6 +8,13 @@
       "when": 1770012133239,
       "tag": "0000_useful_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771491449778,
+      "tag": "0001_even_hawkeye",
+      "breakpoints": true
     }
   ]
 }
