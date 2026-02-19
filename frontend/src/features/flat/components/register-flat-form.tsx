@@ -27,7 +27,10 @@ const FlatRegisterForm = () => {
       registerFlatSchema,
     ) as Resolver<RegisterFlatSchemaType>,
     defaultValues: {
+      id: "",
       name: "",
+      baseRent: 0,
+      landlordId: "",
     },
   });
 
@@ -37,7 +40,7 @@ const FlatRegisterForm = () => {
         id="form-rhf-demo"
         onSubmit={form.handleSubmit((data) => registerFlat(data))}
       >
-      {/* <form
+        {/* <form
         id="form-rhf-demo"
         onSubmit={form.handleSubmit(
           (data) => console.log("... data is ", data),
@@ -56,6 +59,26 @@ const FlatRegisterForm = () => {
                   id="form-rhf-demo-title"
                   aria-invalid={fieldState.invalid}
                   placeholder="5-A"
+                  autoComplete="off"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="baseRent"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="form-rhf-demo-title">Flat Rent</FieldLabel>
+                <Input
+                  {...field}
+                  id="form-rhf-demo-title"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="10000"
                   autoComplete="off"
                 />
                 {fieldState.invalid && (
