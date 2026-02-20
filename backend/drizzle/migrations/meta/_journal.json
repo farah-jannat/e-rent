@@ -15,6 +15,13 @@
       "when": 1771491449778,
       "tag": "0001_even_hawkeye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771610830424,
+      "tag": "0002_dazzling_franklin_richards",
+      "breakpoints": true
     }
   ]
 }
