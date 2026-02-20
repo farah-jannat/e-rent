@@ -16,6 +16,7 @@ import authRouter from "@/routes/auth.router";
 import flatRouter from "@/routes/flat.router";
 import tenantRouter from "@/routes/tenant.router";
 import { getSession } from "@/middlewares/get-session.middleware";
+import { initCronJobs } from "@/cron/cron";
 // import healthRouter from "@/routes/health.router";
 // import userRouter from "@/routes/user.router";
 // import jobRouter from "@/routes/job.router";
@@ -105,6 +106,8 @@ class AuthService {
   // }
 
   private start_server() {
+    initCronJobs();
+
     const PORT = 4001;
     this.app.listen(PORT, () => {
       console.log(`Erent server is running on port ${PORT}`);
