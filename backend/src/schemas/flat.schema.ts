@@ -14,8 +14,6 @@ export const flats = pgTable("flats", {
   name: text("name").notNull(), // e.g., "Flat 4A"
   // baseRent: numeric("base_rent", { precision: 10, scale: 2 }),
   baseRent: integer("base_rent"),
-  serviceCharge: numeric("service_charge", { precision: 10, scale: 2 }).default(
-    "0",
-  ),
+  serviceCharge: integer("service_charge"),
   isOccupied: boolean("is_occupied").default(false),
 });
