@@ -16,8 +16,8 @@ export const editTenant = async (data: Tenant) => {
 
 export const archiveTenant = async (id: string) => {
   console.log("data from arcive tenant api", id);
-  const response = await tenant__axios.put(`/${id}`);
-  return response.data;
+  // const response = await tenant__axios.put(`/${id}`);
+  // return response.data;
 };
 
 export const deleteTenant = async (id: string) => {
@@ -30,5 +30,11 @@ export const deleteTenant = async (id: string) => {
 export const restoreTenant = async (id: string) => {
   console.log("id to restore tenant", id);
   const response = await tenant__axios.put<Tenant>(`/archive/${id}`);
+  return response.data;
+};
+
+export const editStatus = async (id: string) => {
+  console.log("data from edit status tenant api", id);
+  const response = await tenant__axios.put(`/rents/${id}`);
   return response.data;
 };

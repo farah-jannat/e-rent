@@ -14,13 +14,13 @@ const Tenant = () => {
   const { data: tenantRent } = useTenantRentsQuery(id);
 
   // --- *mutation* ---
-  const { mutate: editStatus } = useTenantEditStatusMutation();
+  const { mutate: editStatus } = useTenantEditStatusMutation(id);
   return (
     <div>
       <p>{tenant?.name}</p>
       <p>{tenant?.email}</p>
       <p>{tenant?.phone}</p>
-      <p onClick={() => editStatus(tenantRent?.[0].tenantId)}>
+      <p onClick={() => editStatus(tenantRent?.[0].id)}>
         {tenantRent?.[0].status}
       </p>
     </div>
