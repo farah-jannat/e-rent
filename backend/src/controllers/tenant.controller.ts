@@ -217,5 +217,34 @@ export const tenantRents = async (req: Request, res: Response) => {
       where: eq(rentPayment.tenantId, id),
     }),
   );
-  return res.json(rents)
+  return res.json(rents);
+};
+
+export const editStatus = async (req: Request, res: Response) => {
+  const landlord = req.landlord;
+  const { id } = req.params as { id: string };
+
+  console.log("from the getTenants", landlord);
+
+  if (!landlord) throw new NotAuthorizedError();
+
+  const [rentPaymentError, oldRentPayment] = await catchError(
+    db.query.rentPayment.findFirst({
+      where: and(eq(rentPayment.id, id), eq(tenants.landlordId, landlord.id)),
+    }),
+  );
+  if (rentPaymentError) throw new Error("Db errro!");
+
+  const [erreditStatus, tenantRent] = await catchError(
+    db
+      .update(rentPayment)
+      .set({ status: "PAID" })
+      .where(eq(rentPayment.id, id))
+      .returning(),
+  );
+  if (erreditStatus)
+    console.log(
+      "######################3 Db error updating jobs " + erreditStatus,
+    );
+  return res.json(tenantRent);
 };

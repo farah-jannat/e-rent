@@ -2,6 +2,7 @@ import { config } from "@/config";
 import {
   archiveTenant,
   deleteTenant,
+  editStatus,
   getArchivedTenants,
   getTenant,
   getTenants,
@@ -72,7 +73,6 @@ tenantRouter.put(
   restoreTenant,
 );
 
-
 tenantRouter.get(
   "/rents/:id",
 
@@ -80,6 +80,11 @@ tenantRouter.get(
   tenantRents,
 );
 
+tenantRouter.put(
+  "/rents/:id",
 
+  verifyClientToken(config.JWT_TOKEN),
+  editStatus,
+);
 
 export default tenantRouter;
