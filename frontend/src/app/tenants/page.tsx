@@ -1,6 +1,7 @@
 "use client";
 import { archiveTenant } from "@/features/tenant/api/mutation.api";
 import useTenantArchiveMutation from "@/features/tenant/mutations/use-tenant-archive.mutation";
+import { useTenantRentsQuery } from "@/features/tenant/queries/use-tenantRents.query";
 import { useTenantsQuery } from "@/features/tenant/queries/use-tenants.query";
 import { Delete, Edit2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,7 +21,11 @@ const Tenants = () => {
       <p>all tenants datas</p>
       {data &&
         data.tenants?.map((tenant) => (
-          <div className="" key={tenant.id}>
+          <div
+            className=""
+            key={tenant.id}
+            onClick={() => router.push(`/tenants/${tenant?.id}`)}
+          >
             <p> {tenant?.name}</p>
             <p>{tenant?.email}</p>
             <p>{tenant?.phone}</p>
@@ -32,6 +37,7 @@ const Tenants = () => {
             <div onClick={() => archiveTenant(tenant.id)}>
               <Delete />
             </div>
+            <div> paid </div>
           </div>
         ))}
     </div>
