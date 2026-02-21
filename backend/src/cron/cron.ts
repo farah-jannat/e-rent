@@ -9,6 +9,7 @@ import { flats, rentPayment, tenants } from "@/schemas";
 export const initCronJobs = () => {
   console.log("inside initcronjobs -%%%%%%%*****");
   cron.schedule("0 0 1 * *", async () => {
+    // cron.schedule("* * * * *", async () => {
     console.log("Generating monthly rent records...&&&&&&&&&&&&&&&");
 
     const activeTenants = await db
