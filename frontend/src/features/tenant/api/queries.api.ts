@@ -24,3 +24,10 @@ export const getArchivedTenants = async () => {
   console.log("tenat info", response.data);
   return response.data;
 };
+
+export const getTenantRents = async (id: string) => {
+  // console.log("form gettenantrent api @@@@@@@@@@22", id);
+  const response = await tenant__axios.get(`/rents/${id}`);
+  console.log("tenats rent @@@@@@@@@@@@@@@@@@", response.data);
+  return response.data;
+};

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { tenants } from "@/schemas";
+import { rentPayment, tenants } from "@/schemas";
 import type {
   RegisterTenantInput,
   TenantInput,
@@ -207,4 +207,15 @@ export const restoreTenant = async (req: Request, res: Response) => {
       "######################3 Db error updating jobs " + errRestoreTenant,
     );
   return res.json(tenant);
+};
+
+export const tenantRents = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  const [rentError, rents] = await catchError(
+    db.query.rentPayment.findMany({
+      where: eq(rentPayment.tenantId, id),
+    }),
+  );
+  return res.json(rents)
 };

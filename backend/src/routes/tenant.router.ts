@@ -7,6 +7,7 @@ import {
   getTenants,
   registerTenant,
   restoreTenant,
+  tenantRents,
   updateTenant,
 } from "@/controllers/tenant.controller";
 import { verifyClientToken } from "@/middlewares/verify-client-token.middleware";
@@ -70,5 +71,15 @@ tenantRouter.put(
   verifyClientToken(config.JWT_TOKEN),
   restoreTenant,
 );
+
+
+tenantRouter.get(
+  "/rents/:id",
+
+  verifyClientToken(config.JWT_TOKEN),
+  tenantRents,
+);
+
+
 
 export default tenantRouter;
