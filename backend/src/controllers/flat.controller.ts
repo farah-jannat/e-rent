@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { flats } from "@/schemas";
+import { flats, landlords, quotas } from "@/schemas";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
 import { catchError, handleAsync, NotAuthorizedError } from "@fvoid/shared-lib";
 import { and, count, eq } from "drizzle-orm";
@@ -10,6 +10,53 @@ export const registerFlat = async (req: Request, res: Response) => {
 
   if (!landlord) throw new NotAuthorizedError();
   const formdata = req.body as RegisterFlatInput;
+  // fetch landlord quota
+
+  const [landlordError, newLandlord] = await catchError(
+    db.query.landlords.findFirst({
+      where: eq(landlords.id, landlord.id),
+    }),
+  );
+  
+
+
+  if (landlordError) throw new Error("DB error!");
+  if (!newLandlord) throw new Error("no landlord found! :(");
+
+  // check quota
+
+  const [quotaError, quota] = await catchError(
+    db.query.quotas.findFirst({
+      where: eq(quotas.landlordId, landlord.id),
+    }),
+  );
+
+  if (quotaError) throw new Error("DB error!");
+  // if (!quota) throw new Error("no quota found! :(");
+  if (!quota) {
+    const [newQuotaError, newQuota] = await catchError(
+      db.insert(quotas).values({
+        landlordId: landlord.id,
+      }),
+    );
+    if (newQuotaError) throw new Error("DB error!");
+    // if (!newQuota) throw new Error("no  found! :(");
+  }
+
+  if (quota && quota.count >= newLandlord.quotaLimit) {
+    throw new Error(
+      "Monthly quota reached. Please upgrade your plan for more events",
+    );
+  }
+
+
+  // const [erreditQuota, updatedQuota] = await catchError(
+  //   db
+  //     .update(quotas)
+  //     .set({ count:count+1})
+  //     .where(eq(quotas.id, quotas.id))
+  //     .returning(),
+  // );
 
   const [flatError, flat] = await catchError(
     db.query.flats.findFirst({
@@ -20,23 +67,23 @@ export const registerFlat = async (req: Request, res: Response) => {
     }),
   );
   if (flatError) throw new Error("DB error!");
-  if (flat) {
-    throw new Error("this flat already exist");
-  } else {
-    const [flatError, flat] = await catchError(
-      db.insert(flats).values({
-        ...formdata,
-        landlordId: landlord.id.toString(),
-      }),
-    );
-    if (flatError) throw new Error("error inserting flat in db", flatError);
+  if (!flat) throw new Error("this flat already exist");
 
-    if (!flat) throw new Error("error inserting flat in db");
+  
 
-    return res.json({
-      message: "Account created successfully",
-    });
-  }
+  const [newFlatError, newFlat] = await catchError(
+    db.insert(flats).values({
+      ...formdata,
+      landlordId: landlord.id.toString(),
+    }),
+  );
+  if (newFlatError) throw new Error("error inserting flat in db", newFlatError);
+
+  if (!newFlat) throw new Error("error inserting flat in db");
+
+  return res.json({
+    message: "Account created successfully",
+  });
 };
 
 export const getFlats = async (req: Request, res: Response) => {
