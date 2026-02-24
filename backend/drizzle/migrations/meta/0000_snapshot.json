@@ -1,5 +1,5 @@
 {
-  "id": "e91b45f4-3619-43f3-93d2-07739ab10e4d",
+  "id": "0193332f-eef2-4bd0-b009-15c72991fc3a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -29,16 +29,15 @@
         },
         "base_rent": {
           "name": "base_rent",
-          "type": "numeric(10, 2)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "service_charge": {
           "name": "service_charge",
-          "type": "numeric(10, 2)",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'0'"
+          "notNull": false
         },
         "is_occupied": {
           "name": "is_occupied",
@@ -105,6 +104,21 @@
           "primaryKey": false,
           "notNull": false
         },
+        "quota_limit": {
+          "name": "quota_limit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 2
+        },
+        "plan": {
+          "name": "plan",
+          "type": "landlord_plans",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'free'"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -125,6 +139,53 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.quotas": {
+      "name": "quotas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "landlord_id": {
+          "name": "landlord_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "quotas_landlord_id_landlords_id_fk": {
+          "name": "quotas_landlord_id_landlords_id_fk",
+          "tableFrom": "quotas",
+          "tableTo": "landlords",
+          "columnsFrom": [
+            "landlord_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -160,16 +221,15 @@
         },
         "amount_due": {
           "name": "amount_due",
-          "type": "numeric(10, 2)",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "amount_paid": {
           "name": "amount_paid",
-          "type": "numeric(10, 2)",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'0'"
+          "notNull": false
         },
         "status": {
           "name": "status",
@@ -210,74 +270,6 @@
         "rent_payments_landlord_id_landlords_id_fk": {
           "name": "rent_payments_landlord_id_landlords_id_fk",
           "tableFrom": "rent_payments",
-          "tableTo": "landlords",
-          "columnsFrom": [
-            "landlord_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.subscriptions": {
-      "name": "subscriptions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "landlord_id": {
-          "name": "landlord_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "plan": {
-          "name": "plan",
-          "type": "plan_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'FREE'"
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "expiry_date": {
-          "name": "expiry_date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "subscriptions_landlord_id_landlords_id_fk": {
-          "name": "subscriptions_landlord_id_landlords_id_fk",
-          "tableFrom": "subscriptions",
           "tableTo": "landlords",
           "columnsFrom": [
             "landlord_id"
@@ -397,13 +389,13 @@
         "UNPAID"
       ]
     },
-    "public.plan_type": {
-      "name": "plan_type",
+    "public.landlord_plans": {
+      "name": "landlord_plans",
       "schema": "public",
       "values": [
-        "FREE",
-        "PRO",
-        "PREMIUM"
+        "free",
+        "standard",
+        "premium"
       ]
     }
   },

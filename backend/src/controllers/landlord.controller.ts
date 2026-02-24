@@ -14,7 +14,7 @@ import jwt from "jsonwebtoken";
 export const register = async (req: Request, res: Response) => {
   const formData = req.body as RegisterLandlordInput;
 
-  console.log("formdata email", formData.email);
+  console.log("formdata email", formData);
   const [landlordError, landlord] = await catchError(
     db.query.landlords.findFirst({
       where: eq(landlords.email, formData.email),
