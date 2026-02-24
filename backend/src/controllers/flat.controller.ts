@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { flats, landlords, quotas } from "@/schemas";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
 import { catchError, handleAsync, NotAuthorizedError } from "@fvoid/shared-lib";
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import type { Request, Response } from "express";
 
 export const registerFlat = async (req: Request, res: Response) => {
@@ -17,8 +17,6 @@ export const registerFlat = async (req: Request, res: Response) => {
       where: eq(landlords.id, landlord.id),
     }),
   );
-  
-
 
   if (landlordError) throw new Error("DB error!");
   if (!newLandlord) throw new Error("no landlord found! :(");
@@ -33,22 +31,12 @@ export const registerFlat = async (req: Request, res: Response) => {
 
   if (quotaError) throw new Error("DB error!");
   // if (!quota) throw new Error("no quota found! :(");
-  if (!quota) {
-    const [newQuotaError, newQuota] = await catchError(
-      db.insert(quotas).values({
-        landlordId: landlord.id,
-      }),
-    );
-    if (newQuotaError) throw new Error("DB error!");
-    // if (!newQuota) throw new Error("no  found! :(");
-  }
 
   if (quota && quota.count >= newLandlord.quotaLimit) {
     throw new Error(
       "Monthly quota reached. Please upgrade your plan for more events",
     );
   }
-
 
   // const [erreditQuota, updatedQuota] = await catchError(
   //   db
@@ -67,9 +55,7 @@ export const registerFlat = async (req: Request, res: Response) => {
     }),
   );
   if (flatError) throw new Error("DB error!");
-  if (!flat) throw new Error("this flat already exist");
-
-  
+  if (flat) throw new Error("this flat already exist");
 
   const [newFlatError, newFlat] = await catchError(
     db.insert(flats).values({
@@ -80,6 +66,24 @@ export const registerFlat = async (req: Request, res: Response) => {
   if (newFlatError) throw new Error("error inserting flat in db", newFlatError);
 
   if (!newFlat) throw new Error("error inserting flat in db");
+  const [newQuotaError, newQuota] = await catchError(
+    db
+      .insert(quotas)
+      .values({
+        landlordId: landlord.id,
+        count: 1, // Start at 1 for new records
+      })
+      .onConflictDoUpdate({
+        target: quotas.landlordId,
+        set: {
+          count: sql`${quotas.count} + 1`,
+        },
+      })
+      .returning(),
+  );
+
+  if (newQuotaError) throw new Error("DB error!");
+  if (!newQuota) throw new Error("somethis went wrong");
 
   return res.json({
     message: "Account created successfully",
