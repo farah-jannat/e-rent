@@ -17,6 +17,7 @@ import flatRouter from "@/routes/flat.router";
 import tenantRouter from "@/routes/tenant.router";
 import { getSession } from "@/middlewares/get-session.middleware";
 import { initCronJobs } from "@/cron/cron";
+import subscriptionRouter from "@/routes/subscription.router";
 // import healthRouter from "@/routes/health.router";
 // import userRouter from "@/routes/user.router";
 // import jobRouter from "@/routes/job.router";
@@ -89,6 +90,7 @@ class AuthService {
     this.app.use(`${BASE_PATH}/auth`, authRouter);
     this.app.use(`${BASE_PATH}/flat`, flatRouter);
     this.app.use(`${BASE_PATH}/tenant`, tenantRouter);
+    this.app.use(`${BASE_PATH}/subscription`,subscriptionRouter );
     // this.app.use(`${BASE_PATH}/seed`, seedRouter);
     // this.app.use(`${BASE_PATH}/users`, userRouter);
     // this.app.use(`${BASE_PATH}/profiles`, profileRouter);
