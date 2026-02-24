@@ -1,10 +1,8 @@
 import { flats } from "@/schemas/flat.schema";
 import { landlords } from "@/schemas/landlord.schema";
-import { rentPayment } from "@/schemas/rentPayment.shcema";
+import { rentPayment } from "@/schemas/rentPayment.schema";
 import { relations } from "drizzle-orm";
 import { pgTable, timestamp, boolean, uuid, text } from "drizzle-orm/pg-core";
-
-
 
 // 4. Tenant Model
 export const tenants = pgTable("tenants", {

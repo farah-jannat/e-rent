@@ -1,7 +1,7 @@
 import { Free } from "@/constant";
 import { flats } from "@/schemas/flat.schema";
 import { quotas } from "@/schemas/quota.schema";
-import { rentPayment } from "@/schemas/rentPayment.shcema";
+import { rentPayment } from "@/schemas/rentPayment.schema";
 import { tenants } from "@/schemas/tenant.schema";
 import { relations } from "drizzle-orm";
 import {
