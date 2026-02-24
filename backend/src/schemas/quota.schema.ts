@@ -1,7 +1,7 @@
 import { landlords } from "@/schemas/landlord.schema";
 import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const quotas = pgTable("landlords", {
+export const quotas = pgTable("quotas", {
   id: uuid("id").defaultRandom().primaryKey(),
   landlordId: uuid("landlord_id").references(() => landlords.id),
   count: integer("count").default(0).notNull(),
