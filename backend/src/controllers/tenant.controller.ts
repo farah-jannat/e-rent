@@ -1,9 +1,6 @@
 import { db } from "@/db";
 import { rentPayment, tenants } from "@/schemas";
-import type {
-  RegisterTenantInput,
-  TenantInput,
-} from "@/validations/tenant.validation";
+import type { RegisterTenantInput, TenantInput } from "@/validations/tenant.validation";
 import { catchError, NotAuthorizedError } from "@fvoid/shared-lib";
 import { and, eq, or } from "drizzle-orm";
 import type { Request, Response } from "express";
@@ -18,13 +15,7 @@ export const registerTenant = async (req: Request, res: Response) => {
   console.log("formdata", formData);
   const [tenantError, tenant] = await catchError(
     db.query.tenants.findFirst({
-      where: and(
-        eq(tenants.landlordId, landlord.id),
-        or(
-          eq(tenants.email, formData.email),
-          eq(tenants.flatId, formData.flatId),
-        ),
-      ),
+      where: and(eq(tenants.landlordId, landlord.id), or(eq(tenants.email, formData.email), eq(tenants.flatId, formData.flatId))),
     }),
   );
   if (tenantError) throw new Error("DB error!");
@@ -57,9 +48,7 @@ export const getTenants = async (req: Request, res: Response) => {
     db
       .select()
       .from(tenants)
-      .where(
-        and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, false)),
-      ),
+      .where(and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, false))),
   );
 
   if (TenantError) throw new Error("error getting tenants in db", TenantError);
@@ -92,27 +81,20 @@ export const getTenant = async (req: Request, res: Response) => {
 };
 
 export const updateTenant = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  if (!id) throw new Error("No tenant Id provided");
+
   const formData = req.body as TenantInput;
+
   const [tenantError, oldTenant] = await catchError(
     db.query.tenants.findFirst({
-      where: and(
-        eq(tenants.id, formData.id),
-        eq(tenants.landlordId, formData.landlordId),
-      ),
+      where: and(eq(tenants.id, id), eq(tenants.landlordId, formData.landlordId)),
     }),
   );
   if (tenantError) throw new Error("Db errro!");
-  const [errTenantUpdate, tenant] = await catchError(
-    db
-      .update(tenants)
-      .set(formData)
-      .where(eq(tenants.id, formData.id))
-      .returning(),
-  );
-  if (errTenantUpdate)
-    console.log(
-      "######################3 Db error updating jobs " + errTenantUpdate,
-    );
+  const [errTenantUpdate, tenant] = await catchError(db.update(tenants).set(formData).where(eq(tenants.id, id)).returning());
+  if (errTenantUpdate) console.log("######################3 Db error updating jobs " + errTenantUpdate);
   return res.json(tenant);
 };
 
@@ -128,18 +110,9 @@ export const archiveTenant = async (req: Request, res: Response) => {
   if (tenantError) throw new Error("db Error");
   if (!oldTenant) throw new Error("tenant is not found with this id");
 
-  const [errArchiveTenant, tenant] = await catchError(
-    db
-      .update(tenants)
-      .set({ isArchived: true })
-      .where(eq(tenants.id, id))
-      .returning(),
-  );
+  const [errArchiveTenant, tenant] = await catchError(db.update(tenants).set({ isArchived: true }).where(eq(tenants.id, id)).returning());
 
-  if (errArchiveTenant)
-    console.log(
-      "######################3 Db error updating jobs " + errArchiveTenant,
-    );
+  if (errArchiveTenant) console.log("######################3 Db error updating jobs " + errArchiveTenant);
   return res.json(tenant);
 };
 
@@ -153,9 +126,7 @@ export const getArchivedTenants = async (req: Request, res: Response) => {
     db
       .select()
       .from(tenants)
-      .where(
-        and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, true)),
-      ),
+      .where(and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, true))),
   );
 
   if (TenantError) throw new Error("error getting tenants in db", TenantError);
@@ -171,9 +142,7 @@ export const deleteTenant = async (req: Request, res: Response) => {
   if (!id) {
     throw new Error("No tenantId provided");
   }
-  const [tenantError, tenant] = await catchError(
-    db.delete(tenants).where(eq(tenants.id, id)),
-  );
+  const [tenantError, tenant] = await catchError(db.delete(tenants).where(eq(tenants.id, id)));
   if (tenantError) throw new Error("db error !", tenantError);
   if (!tenant) throw new Error("error deleteing tenant");
 
@@ -195,17 +164,8 @@ export const restoreTenant = async (req: Request, res: Response) => {
   );
   if (tenantError) throw new Error("Db errro!");
 
-  const [errRestoreTenant, tenant] = await catchError(
-    db
-      .update(tenants)
-      .set({ isArchived: false })
-      .where(eq(tenants.id, id))
-      .returning(),
-  );
-  if (errRestoreTenant)
-    console.log(
-      "######################3 Db error updating jobs " + errRestoreTenant,
-    );
+  const [errRestoreTenant, tenant] = await catchError(db.update(tenants).set({ isArchived: false }).where(eq(tenants.id, id)).returning());
+  if (errRestoreTenant) console.log("######################3 Db error updating jobs " + errRestoreTenant);
   return res.json(tenant);
 };
 
@@ -236,15 +196,8 @@ export const editStatus = async (req: Request, res: Response) => {
   if (rentPaymentError) throw new Error("Db errro!");
 
   const [erreditStatus, tenantRent] = await catchError(
-    db
-      .update(rentPayment)
-      .set({ status: "PAID" })
-      .where(eq(rentPayment.id, id))
-      .returning(),
+    db.update(rentPayment).set({ status: "PAID" }).where(eq(rentPayment.id, id)).returning(),
   );
-  if (erreditStatus)
-    console.log(
-      "######################3 Db error updating jobs " + erreditStatus,
-    );
+  if (erreditStatus) console.log("######################3 Db error updating jobs " + erreditStatus);
   return res.json(tenantRent);
 };
