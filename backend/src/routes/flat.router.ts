@@ -6,8 +6,8 @@ import { Router } from "express";
 
 const flatRouter = Router();
 
-flatRouter.post("/register", verifyClientToken(config.JWT_TOKEN), verifySubscription, registerFlat);
-flatRouter.get("/flats", verifyClientToken(config.JWT_TOKEN), getFlats);
+flatRouter.post("/", verifyClientToken(config.JWT_TOKEN), verifySubscription, registerFlat);
+flatRouter.get("/", verifyClientToken(config.JWT_TOKEN), getFlats);
 flatRouter.delete("/:id", verifyClientToken(config.JWT_TOKEN), verifySubscription, deleteFlat);
 
 // flatRouter.post("/register",  registerFlat);

@@ -15,10 +15,10 @@ export const registerTenantSchema = z.object({
 export type RegisterTenantInput = z.infer<typeof registerTenantSchema>;
 
 export const tenantSchema = z.object({
-  id: z
-    .string()
-    .uuid()
-    .describe("Unique identifier for the job, auto-generated UUID."),
+  // id: z
+  //   .string()
+  //   .uuid()
+  //   .describe("Unique identifier for the job, auto-generated UUID."),
   name: z.string().min(1, "fullname is required"),
   phone: z.string(),
   email: z.string(),

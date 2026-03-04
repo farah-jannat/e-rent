@@ -83,9 +83,9 @@ class AuthService {
     const BASE_PATH = "/api/v1";
     // this.app.use(healthRouter);
     this.app.use(`${BASE_PATH}/auth`, authRouter);
-    this.app.use(`${BASE_PATH}/flat`, flatRouter);
-    this.app.use(`${BASE_PATH}/tenant`, tenantRouter);
-    this.app.use(`${BASE_PATH}/subscription`, subscriptionRouter);
+    this.app.use(`${BASE_PATH}/flats`, flatRouter);
+    this.app.use(`${BASE_PATH}/tenants`, tenantRouter);
+    this.app.use(`${BASE_PATH}/subscriptions`, subscriptionRouter);
     // this.app.use(`${BASE_PATH}/seed`, seedRouter);
     // this.app.use(`${BASE_PATH}/users`, userRouter);
     // this.app.use(`${BASE_PATH}/profiles`, profileRouter);

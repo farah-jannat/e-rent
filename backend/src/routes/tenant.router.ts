@@ -17,15 +17,17 @@ import { Router } from "express";
 
 const tenantRouter = Router();
 
-tenantRouter.post("/register", verifyClientToken(config.JWT_TOKEN), verifySubscription, registerTenant);
-tenantRouter.get("/tenants", verifyClientToken(config.JWT_TOKEN), getTenants);
-tenantRouter.get("/tenants/:id", verifyClientToken(config.JWT_TOKEN), getTenant);
-tenantRouter.put("/", verifyClientToken(config.JWT_TOKEN), verifySubscription, updateTenant);
-tenantRouter.put("/:id", verifyClientToken(config.JWT_TOKEN), verifySubscription, archiveTenant);
-tenantRouter.get("/archive", verifyClientToken(config.JWT_TOKEN), getArchivedTenants);
+tenantRouter.post("/", verifyClientToken(config.JWT_TOKEN), verifySubscription, registerTenant);
+tenantRouter.get("/", verifyClientToken(config.JWT_TOKEN), getTenants);
+tenantRouter.get("/:id", verifyClientToken(config.JWT_TOKEN), getTenant);
+tenantRouter.put("/:id", verifyClientToken(config.JWT_TOKEN), verifySubscription, updateTenant);
 tenantRouter.delete(`/:id`, verifyClientToken(config.JWT_TOKEN), verifySubscription, deleteTenant);
-tenantRouter.put("/archive/:id", verifyClientToken(config.JWT_TOKEN), verifySubscription, restoreTenant);
-tenantRouter.get("/rents/:id", verifyClientToken(config.JWT_TOKEN), tenantRents);
-tenantRouter.put("/rents/:id", verifyClientToken(config.JWT_TOKEN), verifySubscription, editStatus);
+
+tenantRouter.get("/archived", verifyClientToken(config.JWT_TOKEN), getArchivedTenants);
+tenantRouter.put("/:id/archive", verifyClientToken(config.JWT_TOKEN), verifySubscription, archiveTenant);
+tenantRouter.put("/:id/restore", verifyClientToken(config.JWT_TOKEN), verifySubscription, restoreTenant);
+
+tenantRouter.get("/:id/rents", verifyClientToken(config.JWT_TOKEN), tenantRents);
+tenantRouter.put("/:id/rents/status", verifyClientToken(config.JWT_TOKEN), verifySubscription, editStatus);
 
 export default tenantRouter;
