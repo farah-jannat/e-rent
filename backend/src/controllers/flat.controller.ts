@@ -9,9 +9,10 @@ export const registerFlat = async (req: Request, res: Response) => {
   const landlord = req.landlord;
 
   if (!landlord) throw new NotAuthorizedError();
-  const formdata = req.body as RegisterFlatInput;
-  // fetch landlord quota
 
+  const formdata = req.body as RegisterFlatInput;
+
+  // fetch landlord quota
   const [landlordError, newLandlord] = await catchError(
     db.query.landlords.findFirst({
       where: eq(landlords.id, landlord.id),
@@ -21,37 +22,27 @@ export const registerFlat = async (req: Request, res: Response) => {
   if (landlordError) throw new Error("DB error!");
   if (!newLandlord) throw new Error("no landlord found! :(");
 
-  // check quota
-
-  const [quotaError, quota] = await catchError(
-    db.query.quotas.findFirst({
-      where: eq(quotas.landlordId, landlord.id),
-    }),
+  const [flatCountError, [flatCountResult]] = await catchError(
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(flats)
+      .where(eq(flats.landlordId, landlord.id)),
   );
+  if (flatCountError) throw new Error("DB error!");
 
-  if (quotaError) throw new Error("DB error!");
-  // if (!quota) throw new Error("no quota found! :(");
+  const currentCount = Number(flatCountResult ? flatCountResult.count : 0);
 
-  if (quota && quota.count >= newLandlord.quotaLimit) {
-    throw new Error(
-      "Monthly quota reached. Please upgrade your plan for more events",
-    );
+  if (newLandlord.plan !== "premium" && currentCount >= newLandlord.quotaLimit) {
+    return res.status(403).json({
+      message: `Limit reached for ${newLandlord.plan} plan. You have ${currentCount} flats. Please upgrade.`,
+      currentFlats: currentCount,
+      limit: newLandlord.quotaLimit,
+    });
   }
-
-  // const [erreditQuota, updatedQuota] = await catchError(
-  //   db
-  //     .update(quotas)
-  //     .set({ count:count+1})
-  //     .where(eq(quotas.id, quotas.id))
-  //     .returning(),
-  // );
 
   const [flatError, flat] = await catchError(
     db.query.flats.findFirst({
-      where: and(
-        eq(flats.name, formdata.name),
-        eq(flats.landlordId, landlord.id), // Check against the logged-in landlord's ID
-      ),
+      where: and(eq(flats.name, formdata.name), eq(flats.landlordId, landlord.id)),
     }),
   );
   if (flatError) throw new Error("DB error!");
@@ -63,27 +54,9 @@ export const registerFlat = async (req: Request, res: Response) => {
       landlordId: landlord.id.toString(),
     }),
   );
+
   if (newFlatError) throw new Error("error inserting flat in db", newFlatError);
-
   if (!newFlat) throw new Error("error inserting flat in db");
-  const [newQuotaError, newQuota] = await catchError(
-    db
-      .insert(quotas)
-      .values({
-        landlordId: landlord.id,
-        count: 1, // Start at 1 for new records
-      })
-      .onConflictDoUpdate({
-        target: quotas.landlordId,
-        set: {
-          count: sql`${quotas.count} + 1`,
-        },
-      })
-      .returning(),
-  );
-
-  if (newQuotaError) throw new Error("DB error!");
-  if (!newQuota) throw new Error("somethis went wrong");
 
   return res.json({
     message: "Account created successfully",
@@ -96,9 +69,7 @@ export const getFlats = async (req: Request, res: Response) => {
 
   if (!landlord) throw new NotAuthorizedError();
 
-  const [flatError, allFlats] = await catchError(
-    db.select().from(flats).where(eq(flats.landlordId, landlord.id)),
-  );
+  const [flatError, allFlats] = await catchError(db.select().from(flats).where(eq(flats.landlordId, landlord.id)));
 
   if (flatError) throw new Error("error getting flat in db", flatError);
   if (!allFlats) throw new Error("error getting flats");
@@ -115,9 +86,7 @@ export const deleteFlat = async (req: Request, res: Response) => {
   if (!id) {
     throw new Error("No flatId provided");
   }
-  const [flatError, flat] = await catchError(
-    db.delete(flats).where(eq(flats.id, id)),
-  );
+  const [flatError, flat] = await catchError(db.delete(flats).where(eq(flats.id, id)));
   if (flatError) throw new Error("error deleting flat!", flatError);
   if (!flat) throw new Error("flat not found");
 
