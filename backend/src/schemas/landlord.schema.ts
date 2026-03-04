@@ -4,21 +4,11 @@ import { quotas } from "@/schemas/quota.schema";
 import { rentPayment } from "@/schemas/rentPayment.schema";
 import { tenants } from "@/schemas/tenant.schema";
 import { relations } from "drizzle-orm";
-import {
-  pgTable,
-  timestamp,
-  uuid,
-  text,
-  integer,
-  pgEnum,
-} from "drizzle-orm/pg-core";
+import { pgTable, timestamp, uuid, text, integer, pgEnum } from "drizzle-orm/pg-core";
 
 // --- * landlord Table *-------
-export const planEnum = pgEnum("landlord_plans", [
-  "free",
-  "standard",
-  "premium",
-]);
+export const planEnum = pgEnum("landlord_plans", ["free", "standard", "premium"]);
+export const landlordStatusEnum = pgEnum("landlord_status", ["active", "suspended", "expired"]);
 
 export const landlords = pgTable("landlords", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -28,6 +18,8 @@ export const landlords = pgTable("landlords", {
   phoneNumber: text("phone_number"),
   quotaLimit: integer("quota_limit").default(Free.flats).notNull(),
   plan: planEnum("plan").notNull().default("free"),
+  subscriptionExpiresAt: timestamp("subscription_expires_at", { withTimezone: true }),
+  status: landlordStatusEnum("status").default("active"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
