@@ -2,12 +2,7 @@
 import express, { type Application } from "express";
 import cors from "cors";
 import morgan from "morgan"; // A popular HTTP request logger middleware for node.js
-import {
-  configureCloudinary,
-  errorHandler,
-  NotFoundError,
-  verifyGatewayToken,
-} from "@fvoid/shared-lib";
+import { configureCloudinary, errorHandler, NotFoundError, verifyGatewayToken } from "@fvoid/shared-lib";
 import cookieSession from "cookie-session";
 
 // ** Local Imports
@@ -16,7 +11,7 @@ import authRouter from "@/routes/auth.router";
 import flatRouter from "@/routes/flat.router";
 import tenantRouter from "@/routes/tenant.router";
 import { getSession } from "@/middlewares/get-session.middleware";
-import { initCronJobs } from "@/cron/cron";
+import { initCronJobs, initSubscriptionCron } from "@/cron/cron";
 import subscriptionRouter from "@/routes/subscription.router";
 // import healthRouter from "@/routes/health.router";
 // import userRouter from "@/routes/user.router";
@@ -90,7 +85,7 @@ class AuthService {
     this.app.use(`${BASE_PATH}/auth`, authRouter);
     this.app.use(`${BASE_PATH}/flat`, flatRouter);
     this.app.use(`${BASE_PATH}/tenant`, tenantRouter);
-    this.app.use(`${BASE_PATH}/subscription`,subscriptionRouter );
+    this.app.use(`${BASE_PATH}/subscription`, subscriptionRouter);
     // this.app.use(`${BASE_PATH}/seed`, seedRouter);
     // this.app.use(`${BASE_PATH}/users`, userRouter);
     // this.app.use(`${BASE_PATH}/profiles`, profileRouter);
@@ -109,6 +104,7 @@ class AuthService {
 
   private start_server() {
     initCronJobs();
+    initSubscriptionCron();
 
     const PORT = 4001;
     this.app.listen(PORT, () => {

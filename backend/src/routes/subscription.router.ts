@@ -5,10 +5,6 @@ import { Router } from "express";
 
 const subscriptionRouter = Router();
 
-subscriptionRouter.post(
-  "/",
-    verifyClientToken(config.JWT_TOKEN),
-  subscribe,
-);
+subscriptionRouter.post("/", verifyClientToken(config.JWT_TOKEN), subscribe);
 
 export default subscriptionRouter;
