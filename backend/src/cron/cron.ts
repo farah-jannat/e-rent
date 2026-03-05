@@ -4,6 +4,7 @@ import cron from "node-cron";
 import { and, eq, lt, not } from "drizzle-orm";
 import { db } from "@/db";
 import { flats, landlords, rentPayment, tenants } from "@/schemas";
+import { catchError } from "@fvoid/shared-lib";
 
 // Schedule to run at 00:00 on the 1st day of every month
 export const initCronJobs = () => {
@@ -35,22 +36,35 @@ export const initCronJobs = () => {
 };
 
 export const initSubscriptionCron = () => {
-  cron.schedule("1 0 * * *", async () => {
+  // cron.schedule("1 0 * * *", async () => {
+  cron.schedule("* * * * *", async () => {
     const now = new Date();
 
+    console.log(`[CRON] Checking for expired subscriptions at: ${now.toISOString()}`);
+
     // 1. Mark as 'expired' and downgrade plan
-    await db
-      .update(landlords)
-      .set({
-        plan: "free",
-        status: "expired", // <--- Trigger the lock status here
-        quotaLimit: 2,
-        subscriptionExpiresAt: null,
-      })
-      .where(and(not(eq(landlords.plan, "free")), lt(landlords.subscriptionExpiresAt, now)));
+    const [err, expiredLandlords] = await catchError(
+      db
+        .update(landlords)
+        .set({
+          plan: "free",
+          status: "expired", // <--- Trigger the lock status here
+          quotaLimit: 2,
+          subscriptionExpiresAt: null,
+        })
+        .where(and(not(eq(landlords.plan, "free")), lt(landlords.subscriptionExpiresAt, now)))
+        .returning({ id: landlords.id, email: landlords.email }),
+    );
+
+    if (err) return console.error("[CRON] Error during subscription cleanup:", err);
+
+    if (expiredLandlords.length > 0) {
+      console.log(`[CRON] Successfully expired ${expiredLandlords.length} accounts:`, expiredLandlords);
+    } else {
+      console.log("[CRON] No accounts met the expiration criteria.");
+    }
   });
 };
-
 
 // Log the transaction
 // Create the Middleware

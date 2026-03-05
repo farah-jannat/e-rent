@@ -42,23 +42,50 @@ export const handleSubscriptionPurchase = async (landlordId: string, plan: "stan
 
     // 3. Calculate Cost (For your payment gateway/invoice)
     const basePrice = pricing[plan] * durationMonths;
-    const finalPrice = basePrice * (1 - discounts[durationMonths]);
+    // const finalPrice = basePrice * (1 - discounts[durationMonths]);
+    const finalPrice = basePrice;
 
-    // 4. Calculate New Expiry Date
+    // =====
+
+    // // 4. Calculate New Expiry Date
+    // const now = new Date();
+    // let startDate = now;
+    // let newExpiry: Date;
+
+    // if (landlord.subscriptionExpiresAt && landlord.subscriptionExpiresAt > now) {
+    //   // If still active, start the new period from the current expiry date
+    //   startDate = new Date(landlord.subscriptionExpiresAt);
+    //   newExpiry = new Date(landlord.subscriptionExpiresAt);
+    //   // newExpiry.setMonth(newExpiry.getMonth() + durationMonths);
+    //   newExpiry.setMinutes(newExpiry.getMinutes() + durationMonths);
+    // } else {
+    //   // If expired or new, start from now
+    //   newExpiry = new Date();
+    //   // newExpiry.setMonth(newExpiry.getMonth() + durationMonths);
+    //   newExpiry.setMinutes(newExpiry.getMinutes() + durationMonths);
+    // }
+
+    // ====
+
     const now = new Date();
     let startDate = now;
     let newExpiry: Date;
 
+    // Convert duration (3) into milliseconds: 3 * 60 * 1000
+    const addedTimeMs = durationMonths * 60 * 1000;
+
     if (landlord.subscriptionExpiresAt && landlord.subscriptionExpiresAt > now) {
-      // If still active, start the new period from the current expiry date
+      // If still active, extend from current expiry
       startDate = new Date(landlord.subscriptionExpiresAt);
-      newExpiry = new Date(landlord.subscriptionExpiresAt);
-      newExpiry.setMonth(newExpiry.getMonth() + durationMonths);
+      newExpiry = new Date(startDate.getTime() + addedTimeMs);
     } else {
-      // If expired or new, start from now
-      newExpiry = new Date();
-      newExpiry.setMonth(newExpiry.getMonth() + durationMonths);
+      // If expired or new, start from exactly right now
+      startDate = now;
+      newExpiry = new Date(now.getTime() + addedTimeMs);
     }
+
+    // ===
+
     // 5. Update Database
     await tx
       .update(landlords)
