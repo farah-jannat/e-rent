@@ -3,7 +3,7 @@ import { flats } from "@/schemas/flat.schema";
 import { quotas } from "@/schemas/quota.schema";
 import { rentPayment } from "@/schemas/rentPayment.schema";
 import { tenants } from "@/schemas/tenant.schema";
-import { relations } from "drizzle-orm";
+import { relations, type InferSelectModel } from "drizzle-orm";
 import { pgTable, timestamp, uuid, text, integer, pgEnum } from "drizzle-orm/pg-core";
 
 // --- * landlord Table *-------
@@ -29,3 +29,6 @@ export const landlordRelations = relations(landlords, ({ many, one }) => ({
   payments: many(rentPayment),
   // quota: one(quotas)
 }));
+
+
+export type Landlord= InferSelectModel<typeof landlords>;
