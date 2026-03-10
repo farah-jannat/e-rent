@@ -1,4 +1,5 @@
 import { landlords } from "@/schemas/landlord.schema";
+import type { InferSelectModel } from "drizzle-orm";
 import {
   pgTable,
   boolean,
@@ -17,3 +18,5 @@ export const flats = pgTable("flats", {
   serviceCharge: integer("service_charge"),
   isOccupied: boolean("is_occupied").default(false),
 });
+
+export type Flat = InferSelectModel<typeof flats>;
