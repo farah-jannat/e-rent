@@ -1,6 +1,7 @@
-import type { Flat, Landlord } from "@/schemas";
+import type { Flat, Landlord, Tenant } from "@/schemas";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
 import type { RegisterLandlordInput } from "@/validations/landlord.validation";
+import type { RegisterTenantInput, UpdateTenantInput } from "@/validations/tenant.validation";
 
 export interface IFlatService {
   findAll: (landlordId: string) => Promise<Flat[]>;
@@ -14,4 +15,11 @@ export interface IAuthService {
   findByEmail: (email: string) => Promise<Landlord | undefined>;
   findById: (id: string) => Promise<Landlord | undefined>;
   create: (input: RegisterLandlordInput) => Promise<Landlord | undefined>;
+}
+
+export interface ITenantService {
+  findAll: (landlordId: string) => Promise<Tenant[]>;
+  create: (input: RegisterTenantInput, landlordId: string) => Promise<Tenant | undefined>;
+  update: (id: string, formData: UpdateTenantInput) => Promise<Tenant | undefined>;
+  findById: (id: string, landlordId: string) => Promise<Tenant | undefined>;
 }

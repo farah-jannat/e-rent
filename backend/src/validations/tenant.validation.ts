@@ -27,3 +27,5 @@ export const tenantSchema = z.object({
 });
 
 export type TenantInput = z.infer<typeof tenantSchema>;
+
+export type UpdateTenantInput = z.infer<typeof tenantSchema>;

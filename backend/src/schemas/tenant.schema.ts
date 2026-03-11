@@ -1,7 +1,7 @@
 import { flats } from "@/schemas/flat.schema";
 import { landlords } from "@/schemas/landlord.schema";
 import { rentPayment } from "@/schemas/rentPayment.schema";
-import { relations } from "drizzle-orm";
+import { relations, type InferSelectModel } from "drizzle-orm";
 import { pgTable, timestamp, boolean, uuid, text } from "drizzle-orm/pg-core";
 
 // 4. Tenant Model
@@ -20,3 +20,5 @@ export const tenantRelations = relations(tenants, ({ one, many }) => ({
   flat: one(flats, { fields: [tenants.flatId], references: [flats.id] }),
   payments: many(rentPayment),
 }));
+
+export type Tenant = InferSelectModel<typeof tenants>;

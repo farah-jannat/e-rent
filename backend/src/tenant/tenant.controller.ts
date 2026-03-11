@@ -1,74 +1,165 @@
-import type { IAuthService, IFlatService } from "@/interfaces";
+import type { IAuthService, IFlatService, ITenantService } from "@/interfaces";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
+import type { RegisterTenantInput, UpdateTenantInput } from "@/validations/tenant.validation";
 import { NotAuthorizedError } from "@fvoid/shared-lib";
 import type { Request, Response } from "express";
 
 export class TenantController {
-  constructor(
-    public flatService: IFlatService,
-    public authService: IAuthService,
-  ) {}
+  constructor(public tenantService: ITenantService) {}
 
-  registerFlat = async (req: Request, res: Response) => {
+  registerTenant = async (req: Request, res: Response) => {
     const landlord = req.landlord;
     if (!landlord) throw new NotAuthorizedError();
 
-    const formdata = req.body as RegisterFlatInput;
+    const formData = req.body as RegisterTenantInput;
+    const tenant = await this.tenantService.create(formData, landlord.id);
 
-    // check for landlord
-    const newLandlord = await this.authService.findById(landlord.id);
-    if (!newLandlord) throw new Error("no landlord found! :(");
-
-    // count landloards total flats
-    const flatCount = await this.flatService.countFlats(landlord.id);
-
-    // check for subscription limit
-    if (newLandlord.plan !== "premium" && flatCount >= newLandlord.quotaLimit) {
-      return res.status(403).json({
-        message: `Limit reached for ${newLandlord.plan} plan. You have ${flatCount} flats. Please upgrade.`,
-        currentFlats: flatCount,
-        limit: newLandlord.quotaLimit,
-      });
-    }
-
-    // check for flat
-    const flat = await this.flatService.findOne(formdata.name, landlord.id);
-    if (flat) throw new Error("this flat already exist");
-
-    // prepare data
-    // const data:RegisterFlatInput = {
-    //   ...formdata,
-    //   landlordId: landlord.id.toString(),
-    // };
-
-    // create a new flat
-    const newFlat = await this.flatService.create({ ...formdata, landlordId: landlord.id.toString() } as RegisterFlatInput);
-    if (!newFlat) throw new Error("error inserting flat in db");
-
-    // return response
     return res.json({
-      message: "Account created successfully",
+      message: "tenant created successfully",
+      tenant: tenant,
     });
   };
 
-  getFlats = async (req: Request, res: Response) => {
+  getTenants = async (req: Request, res: Response) => {
     const landlord = req.landlord;
     if (!landlord) throw new NotAuthorizedError();
 
-    const allFlats = await this.flatService.findAll(landlord.id);
+    const tenants = await this.tenantService.findAll(landlord.id);
 
-    return res.json(allFlats);
+    return res.json({
+      tenants,
+    });
   };
 
-  deleteFlat = async (req: Request, res: Response) => {
+  getTenant = async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
-    if (!id) throw new Error("No flatId provided");
 
-    const flat = await this.flatService.remove(id);
-    if (!flat) throw new Error("flat not found");
+    const landlord = req.landlord;
+    if (!landlord) throw new NotAuthorizedError();
 
-    return res.json({
-      flat: flat,
-    });
+    if (!id) throw new Error("No tenant Id provided");
+
+    const tenant = await this.tenantService.findById(id, landlord.id);
+    if (!tenant) throw new Error("tenant not found with this id! -_-");
+
+    return res.json(tenant);
+  };
+
+  updateTenant = async (req: Request, res: Response) => {
+    const { id } = req.params as { id: string };
+
+    if (!id) throw new Error("No tenant Id provided");
+
+    const formData = req.body as UpdateTenantInput;
+
+    const tenant = await this.tenantService.update(id, formData);
+
+    return res.json(tenant);
+  };
+
+  archiveTenant = async (req: Request, res: Response) => {
+    const { id } = req.params as { id: string };
+    console.log("arhive tenant id $$$$$$$$$$$$4", id);
+
+    const [tenantError, oldTenant] = await catchError(
+      db.query.tenants.findFirst({
+        where: eq(tenants.id, id),
+      }),
+    );
+    if (tenantError) throw new Error("db Error");
+    if (!oldTenant) throw new Error("tenant is not found with this id");
+
+    const [errArchiveTenant, tenant] = await catchError(db.update(tenants).set({ isArchived: true }).where(eq(tenants.id, id)).returning());
+
+    if (errArchiveTenant) console.log("######################3 Db error updating jobs " + errArchiveTenant);
+    return res.json(tenant);
+  };
+
+  getArchivedTenants = async (req: Request, res: Response) => {
+    const landlord = req.landlord;
+    console.log("from the getTenants", landlord);
+
+    if (!landlord) throw new NotAuthorizedError();
+
+    const [TenantError, archivedTenants] = await catchError(
+      db
+        .select()
+        .from(tenants)
+        .where(and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, true))),
+    );
+
+    if (TenantError) throw new Error("error getting tenants in db", TenantError);
+    if (!archivedTenants) throw new Error("tenants are not available");
+
+    return res.json({ tenants: archivedTenants });
+  };
+
+  deleteTenant = async (req: Request, res: Response) => {
+    const { id } = req.params as { id: string };
+
+    console.log("tennat-id***********8", id);
+    if (!id) {
+      throw new Error("No tenantId provided");
+    }
+    const [tenantError, tenant] = await catchError(db.delete(tenants).where(eq(tenants.id, id)));
+    if (tenantError) throw new Error("db error !", tenantError);
+    if (!tenant) throw new Error("error deleteing tenant");
+
+    return res.json(tenant);
+  };
+
+  restoreTenant = async (req: Request, res: Response) => {
+    const landlord = req.landlord;
+    const { id } = req.params as { id: string };
+
+    console.log("from the getTenants", landlord);
+
+    if (!landlord) throw new NotAuthorizedError();
+
+    const [tenantError, oldTenant] = await catchError(
+      db.query.tenants.findFirst({
+        where: and(eq(tenants.id, id), eq(tenants.landlordId, landlord.id)),
+      }),
+    );
+    if (tenantError) throw new Error("Db errro!");
+
+    const [errRestoreTenant, tenant] = await catchError(
+      db.update(tenants).set({ isArchived: false }).where(eq(tenants.id, id)).returning(),
+    );
+    if (errRestoreTenant) console.log("######################3 Db error updating jobs " + errRestoreTenant);
+    return res.json(tenant);
+  };
+
+  tenantRents = async (req: Request, res: Response) => {
+    const { id } = req.params as { id: string };
+
+    const [rentError, rents] = await catchError(
+      db.query.rentPayment.findMany({
+        where: eq(rentPayment.tenantId, id),
+      }),
+    );
+    return res.json(rents);
+  };
+
+  editStatus = async (req: Request, res: Response) => {
+    const landlord = req.landlord;
+    const { id } = req.params as { id: string };
+
+    console.log("from the getTenants", landlord);
+
+    if (!landlord) throw new NotAuthorizedError();
+
+    const [rentPaymentError, oldRentPayment] = await catchError(
+      db.query.rentPayment.findFirst({
+        where: and(eq(rentPayment.id, id), eq(tenants.landlordId, landlord.id)),
+      }),
+    );
+    if (rentPaymentError) throw new Error("Db errro!");
+
+    const [erreditStatus, tenantRent] = await catchError(
+      db.update(rentPayment).set({ status: "PAID" }).where(eq(rentPayment.id, id)).returning(),
+    );
+    if (erreditStatus) console.log("######################3 Db error updating jobs " + erreditStatus);
+    return res.json(tenantRent);
   };
 }

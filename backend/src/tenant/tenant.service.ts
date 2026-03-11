@@ -1,66 +1,78 @@
 import type { SqlDB } from "@/db";
-import type { IFlatService } from "@/interfaces";
-import { flats, landlords, type Landlord } from "@/schemas";
+import type { IFlatService, ITenantService } from "@/interfaces";
+import { flats, landlords, tenants, type Landlord } from "@/schemas";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
+import type { RegisterTenantInput, UpdateTenantInput } from "@/validations/tenant.validation";
 import { catchError } from "@fvoid/shared-lib";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 
-export class FlatService implements IFlatService {
+export class TenantService implements ITenantService {
   constructor(public db: SqlDB) {}
 
-  async findOne(flatName: string, landlordId: string) {
-    const [flatError, flat] = await catchError(
-      this.db.query.flats.findFirst({
-        where: and(eq(flats.name, flatName), eq(flats.landlordId, landlordId)),
+  async create(formData: RegisterTenantInput, landlordId: string) {
+    const [findError, existingTenant] = await catchError(
+      this.db.query.tenants.findFirst({
+        where: and(eq(tenants.landlordId, landlordId), or(eq(tenants.email, formData.email), eq(tenants.flatId, formData.flatId))),
       }),
     );
-    if (flatError) throw new Error("DB error!");
-    // if (flat) throw new Error("this flat already exist");
-    return flat;
+
+    if (findError) throw new Error("DB error!");
+    if (existingTenant) throw new Error("user exist with this email or !");
+
+    const [insertError, tenant] = await catchError(
+      this.db
+        .insert(tenants)
+        .values(formData)
+        .returning()
+        .then((res) => res[0]),
+    );
+    if (insertError) throw new Error("Error inserting tenant!");
+    return tenant;
   }
 
   async findAll(landlordId: string) {
-    const [flatError, allFlats] = await catchError(this.db.select().from(flats).where(eq(flats.landlordId, landlordId)));
-    if (flatError) throw new Error("error getting flat in db", flatError);
-
-    return allFlats;
-  }
-
-  async countFlats(landlordId: string) {
-    const [flatCountError, [flatCountResult]] = await catchError(
+    const [TenantError, allTenants] = await catchError(
       this.db
-        .select({ count: sql<number>`count(*)` })
-        .from(flats)
-        .where(eq(flats.landlordId, landlordId)),
+        .select()
+        .from(tenants)
+        .where(and(eq(tenants.landlordId, landlordId), eq(tenants.isArchived, false))),
     );
-    if (flatCountError) throw new Error("DB error!");
 
-    const currentCount = Number(flatCountResult ? flatCountResult.count : 0);
+    if (TenantError) throw new Error("error getting tenants in db", TenantError);
 
-    return currentCount;
+    return allTenants;
   }
 
-  async create(input: RegisterFlatInput) {
-    const [newFlatError, newFlat] = await catchError(
+  async findById(id: string, landlordId: string) {
+    const [tenantError, tenant] = await catchError(
+      this.db.query.tenants.findFirst({
+        where: and(eq(tenants?.id, id), eq(tenants.landlordId, landlordId)),
+      }),
+    );
+    if (tenantError) throw new Error("DB error!");
+
+    return tenant;
+  }
+
+  async update(id: string, formData: UpdateTenantInput) {
+    const [tenantError, oldTenant] = await catchError(
+      this.db.query.tenants.findFirst({
+        where: and(eq(tenants.id, id), eq(tenants.landlordId, formData.landlordId)),
+      }),
+    );
+
+    if (tenantError) throw new Error("Db error!");
+    if (!oldTenant) throw new Error("Tenant not found");
+
+    const [errTenantUpdate, tenant] = await catchError(
       this.db
-        .insert(flats)
-        .values(input)
+        .update(tenants)
+        .set(formData)
+        .where(eq(tenants.id, id))
         .returning()
         .then((res) => res[0]),
     );
-    if (newFlatError) throw new Error("error inserting flat in db", newFlatError);
-    return newFlat;
-  }
-
-  async remove(id: string) {
-    const [flatError, flat] = await catchError(
-      this.db
-        .delete(flats)
-        .where(eq(flats.id, id))
-        .returning()
-        .then((res) => res[0]),
-    );
-    if (flatError) throw new Error("error deleting flat!", flatError);
-    return flat;
+    if (errTenantUpdate) throw new Error("Error updating tenant");
+    return tenant;
   }
 }

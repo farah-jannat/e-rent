@@ -3,6 +3,7 @@ import { deleteFlat, getFlats, registerFlat } from "@/controllers/flat.controlle
 import type { FlatController } from "@/flat/flat.controller";
 import { verifyClientToken } from "@/middlewares/verify-client-token.middleware";
 import { verifySubscription } from "@/middlewares/verify-subscription.middleware";
+import type { TenantController } from "@/tenant/tenant.controller";
 import { Router } from "express";
 
 const flatRouter = Router();
@@ -17,21 +18,29 @@ export default flatRouter;
 
 // ===
 
-export class FlatRouter {
-  private handler: FlatController;
+export class TenantRouter {
+  private handler: TenantController;
   private router: Router;
 
-  constructor(handler: FlatController) {
+  constructor(handler: TenantController) {
     this.handler = handler;
     this.router = Router();
   }
 
   mount(): Router {
-    console.log("it will fetch the first flat");
+    this.router.post("/", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.registerTenant);
+    this.router.get("/", verifyClientToken(config.JWT_TOKEN), this.handler.getTenants);
+    this.router.get("/:id", verifyClientToken(config.JWT_TOKEN), this.handler.getTenant);
+    this.router.put("/:id", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.updateTenant);
+    this.router.delete(`/:id`, verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.deleteTenant);
 
-    this.router.post("/", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.registerFlat);
-    // this.router.get("/", verifyClientToken(config.JWT_TOKEN), getFlats);
-    // this.router.delete("/:id", verifyClientToken(config.JWT_TOKEN), verifySubscription, deleteFlat);
+    this.router.get("/archived", verifyClientToken(config.JWT_TOKEN), this.handler.getArchivedTenants);
+    this.router.put("/:id/archive", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.archiveTenant);
+    this.router.put("/:id/restore", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.restoreTenant);
+
+    this.router.get("/:id/rents", verifyClientToken(config.JWT_TOKEN), this.handler.tenantRents);
+    this.router.put("/:id/rents/status", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.editStatus);
+
     return this.router;
   }
 }
