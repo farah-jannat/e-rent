@@ -38,8 +38,8 @@ export class TenantRouter {
     this.router.put("/:id/archive", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.archiveTenant);
     this.router.put("/:id/restore", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.restoreTenant);
 
-    this.router.get("/:id/rents", verifyClientToken(config.JWT_TOKEN), this.handler.tenantRents);
-    this.router.put("/:id/rents/status", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.editStatus);
+    // this.router.get("/:id/rents", verifyClientToken(config.JWT_TOKEN), this.handler.tenantRents);
+    // this.router.put("/:id/rents/status", verifyClientToken(config.JWT_TOKEN), verifySubscription, this.handler.editStatus);
 
     return this.router;
   }

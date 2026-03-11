@@ -1,10 +1,9 @@
 import type { SqlDB } from "@/db";
-import type { IFlatService, ITenantService } from "@/interfaces";
-import { flats, landlords, tenants, type Landlord } from "@/schemas";
-import type { RegisterFlatInput } from "@/validations/flat.validation";
+import type { ITenantService } from "@/interfaces";
+import { tenants } from "@/schemas";
 import type { RegisterTenantInput, UpdateTenantInput } from "@/validations/tenant.validation";
 import { catchError } from "@fvoid/shared-lib";
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 
 export class TenantService implements ITenantService {
   constructor(public db: SqlDB) {}
@@ -28,6 +27,19 @@ export class TenantService implements ITenantService {
     );
     if (insertError) throw new Error("Error inserting tenant!");
     return tenant;
+  }
+
+  async findAllArchived(landlordId: string) {
+    const [TenantError, archivedTenants] = await catchError(
+      this.db
+        .select()
+        .from(tenants)
+        .where(and(eq(tenants.landlordId, landlordId), eq(tenants.isArchived, true))),
+    );
+
+    if (TenantError) throw new Error("error getting tenants in db", TenantError);
+
+    return archivedTenants;
   }
 
   async findAll(landlordId: string) {
@@ -73,6 +85,49 @@ export class TenantService implements ITenantService {
         .then((res) => res[0]),
     );
     if (errTenantUpdate) throw new Error("Error updating tenant");
+    return tenant;
+  }
+
+  async remove(id: string, landlordId: string) {
+    const [tenantError, tenant] = await catchError(
+      this.db
+        .delete(tenants)
+        .where(and(eq(tenants.id, id), eq(tenants.landlordId, landlordId)))
+        .returning()
+        .then((res) => res[0]),
+    );
+
+    if (tenantError) throw new Error("db error !", tenantError);
+    if (!tenant) throw new Error("error deleteing tenant");
+
+    return tenant;
+  }
+
+  async archive(id: string, landlordId: string) {
+    const [errRestoreTenant, tenant] = await catchError(
+      this.db
+        .update(tenants)
+        .set({ isArchived: true })
+        .where(and(eq(tenants.id, id), eq(tenants.landlordId, landlordId)))
+        .returning()
+        .then((res) => res[0]),
+    );
+    if (errRestoreTenant) throw new Error("Error archiving tenant");
+
+    return tenant;
+  }
+
+  async unArchive(id: string, landlordId: string) {
+    const [errRestoreTenant, tenant] = await catchError(
+      this.db
+        .update(tenants)
+        .set({ isArchived: false })
+        .where(and(eq(tenants.id, id), eq(tenants.landlordId, landlordId)))
+        .returning()
+        .then((res) => res[0]),
+    );
+    if (errRestoreTenant) throw new Error("Error unarchiving tenant");
+
     return tenant;
   }
 }

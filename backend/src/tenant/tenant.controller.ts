@@ -1,5 +1,4 @@
-import type { IAuthService, IFlatService, ITenantService } from "@/interfaces";
-import type { RegisterFlatInput } from "@/validations/flat.validation";
+import type { ITenantService } from "@/interfaces";
 import type { RegisterTenantInput, UpdateTenantInput } from "@/validations/tenant.validation";
 import { NotAuthorizedError } from "@fvoid/shared-lib";
 import type { Request, Response } from "express";
@@ -59,107 +58,79 @@ export class TenantController {
 
   archiveTenant = async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
-    console.log("arhive tenant id $$$$$$$$$$$$4", id);
 
-    const [tenantError, oldTenant] = await catchError(
-      db.query.tenants.findFirst({
-        where: eq(tenants.id, id),
-      }),
-    );
-    if (tenantError) throw new Error("db Error");
-    if (!oldTenant) throw new Error("tenant is not found with this id");
+    const landlord = req.landlord;
+    if (!landlord) throw new NotAuthorizedError();
 
-    const [errArchiveTenant, tenant] = await catchError(db.update(tenants).set({ isArchived: true }).where(eq(tenants.id, id)).returning());
+    const oldTenant = await this.tenantService.findById(id, landlord.id);
+    if (!oldTenant) throw new Error("Tenant is not found with this id");
 
-    if (errArchiveTenant) console.log("######################3 Db error updating jobs " + errArchiveTenant);
+    const tenant = await this.tenantService.archive(id, landlord.id);
     return res.json(tenant);
   };
 
   getArchivedTenants = async (req: Request, res: Response) => {
     const landlord = req.landlord;
-    console.log("from the getTenants", landlord);
-
     if (!landlord) throw new NotAuthorizedError();
 
-    const [TenantError, archivedTenants] = await catchError(
-      db
-        .select()
-        .from(tenants)
-        .where(and(eq(tenants.landlordId, landlord.id), eq(tenants.isArchived, true))),
-    );
+    const tenants = await this.tenantService.findAllArchived(landlord.id);
 
-    if (TenantError) throw new Error("error getting tenants in db", TenantError);
-    if (!archivedTenants) throw new Error("tenants are not available");
-
-    return res.json({ tenants: archivedTenants });
+    return res.json(tenants);
   };
 
   deleteTenant = async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
 
-    console.log("tennat-id***********8", id);
-    if (!id) {
-      throw new Error("No tenantId provided");
-    }
-    const [tenantError, tenant] = await catchError(db.delete(tenants).where(eq(tenants.id, id)));
-    if (tenantError) throw new Error("db error !", tenantError);
-    if (!tenant) throw new Error("error deleteing tenant");
+    const landlord = req.landlord;
+    if (!landlord) throw new NotAuthorizedError();
+
+    const tenant = await this.tenantService.remove(id, landlord.id);
 
     return res.json(tenant);
   };
 
   restoreTenant = async (req: Request, res: Response) => {
-    const landlord = req.landlord;
     const { id } = req.params as { id: string };
 
-    console.log("from the getTenants", landlord);
-
+    const landlord = req.landlord;
     if (!landlord) throw new NotAuthorizedError();
 
-    const [tenantError, oldTenant] = await catchError(
-      db.query.tenants.findFirst({
-        where: and(eq(tenants.id, id), eq(tenants.landlordId, landlord.id)),
-      }),
-    );
-    if (tenantError) throw new Error("Db errro!");
+    const tenant = await this.tenantService.unArchive(id, landlord.id);
 
-    const [errRestoreTenant, tenant] = await catchError(
-      db.update(tenants).set({ isArchived: false }).where(eq(tenants.id, id)).returning(),
-    );
-    if (errRestoreTenant) console.log("######################3 Db error updating jobs " + errRestoreTenant);
     return res.json(tenant);
   };
 
-  tenantRents = async (req: Request, res: Response) => {
-    const { id } = req.params as { id: string };
+  // tenantRents = async (req: Request, res: Response) => {
+  //   const { id } = req.params as { id: string };
 
-    const [rentError, rents] = await catchError(
-      db.query.rentPayment.findMany({
-        where: eq(rentPayment.tenantId, id),
-      }),
-    );
-    return res.json(rents);
-  };
+  //   const [rentError, rents] = await catchError(
+  //     db.query.rentPayment.findMany({
+  //       where: eq(rentPayment.tenantId, id),
+  //     }),
+  //   );
 
-  editStatus = async (req: Request, res: Response) => {
-    const landlord = req.landlord;
-    const { id } = req.params as { id: string };
+  //   return res.json(rents);
+  // };
 
-    console.log("from the getTenants", landlord);
+  // editStatus = async (req: Request, res: Response) => {
+  //   const landlord = req.landlord;
+  //   const { id } = req.params as { id: string };
 
-    if (!landlord) throw new NotAuthorizedError();
+  //   console.log("from the getTenants", landlord);
 
-    const [rentPaymentError, oldRentPayment] = await catchError(
-      db.query.rentPayment.findFirst({
-        where: and(eq(rentPayment.id, id), eq(tenants.landlordId, landlord.id)),
-      }),
-    );
-    if (rentPaymentError) throw new Error("Db errro!");
+  //   if (!landlord) throw new NotAuthorizedError();
 
-    const [erreditStatus, tenantRent] = await catchError(
-      db.update(rentPayment).set({ status: "PAID" }).where(eq(rentPayment.id, id)).returning(),
-    );
-    if (erreditStatus) console.log("######################3 Db error updating jobs " + erreditStatus);
-    return res.json(tenantRent);
-  };
+  //   const [rentPaymentError, oldRentPayment] = await catchError(
+  //     db.query.rentPayment.findFirst({
+  //       where: and(eq(rentPayment.id, id), eq(tenants.landlordId, landlord.id)),
+  //     }),
+  //   );
+  //   if (rentPaymentError) throw new Error("Db errro!");
+
+  //   const [erreditStatus, tenantRent] = await catchError(
+  //     db.update(rentPayment).set({ status: "PAID" }).where(eq(rentPayment.id, id)).returning(),
+  //   );
+  //   if (erreditStatus) console.log("######################3 Db error updating jobs " + erreditStatus);
+  //   return res.json(tenantRent);
+  // };
 }
