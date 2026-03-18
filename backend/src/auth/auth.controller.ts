@@ -40,38 +40,48 @@ export class AuthController {
     req.session = { jwt: token };
 
     // return response
-    return res.json({
+    return res.status(201).json({
       message: "Account created successfully",
       token: token,
       user: insertLandlord,
     });
   };
 
+  // login = async (req: Request, res: Response) => {
+  //   const formData = req.body as LoginLandlordInput;
+
+  //   // check for landlord
+  //   const landlord = await this.authService.findByEmail(formData.email);
+  //   if (!landlord) throw new Error("User are not found with this email! -_-");
+
+  //   // verity password
+  //   const isPasswordValid = await verifyPassword(formData.password, landlord.password);
+  //   if (!isPasswordValid) throw new BadRequestError("Invalid credentials");
+
+  //   // generate jwt
+  //   const payload = {
+  //     id: landlord?.id,
+  //     email: landlord.email,
+  //     exp: Math.floor(Date.now() / 1000) + 24 * 7 * 3600,
+  //   };
+  //   const token = jwt.sign(payload, config.JWT_TOKEN);
+  //   req.session = { jwt: token };
+
+  //   // return response
+  //   return res.json({
+  //     message: "User logged in successfully",
+  //     user: landlord,
+  //     token,
+  //   });
+  // };
+
+
   login = async (req: Request, res: Response) => {
+
     const formData = req.body as LoginLandlordInput;
 
-    // check for landlord
-    const landlord = await this.authService.findByEmail(formData.email);
-    if (!landlord) throw new Error("User are not found with this email! -_-");
 
-    // verity password
-    const isPasswordValid = await verifyPassword(formData.password, landlord.password);
-    if (!isPasswordValid) throw new BadRequestError("Invalid credentials");
+  }
 
-    // generate jwt
-    const payload = {
-      id: landlord?.id,
-      email: landlord.email,
-      exp: Math.floor(Date.now() / 1000) + 24 * 7 * 3600,
-    };
-    const token = jwt.sign(payload, config.JWT_TOKEN);
-    req.session = { jwt: token };
 
-    // return response
-    return res.json({
-      message: "User logged in successfully",
-      user: landlord,
-      token,
-    });
-  };
 }

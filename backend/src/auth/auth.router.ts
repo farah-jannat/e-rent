@@ -1,4 +1,6 @@
 import type { AuthController } from "@/auth/auth.controller";
+import { loginLandlordSchema } from "@/validations/landlord.validation";
+import { validateData } from "@fvoid/shared-lib";
 import { Router } from "express";
 
 export class AuthRouter {
@@ -11,9 +13,9 @@ export class AuthRouter {
   }
 
   mount(): Router {
-    console.log("@@@@@@@@@@@@ ", this.handler.register);
     this.router.post("/register", this.handler.register);
     this.router.post(`/login`, this.handler.login);
+    // this.router.post(`/login`,validateData(loginLandlordSchema), this.handler.login);
 
     return this.router;
   }

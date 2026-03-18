@@ -1,8 +1,5 @@
-import express from "express";
-import { Server } from "@/server";
+import { AppFactory } from "@/app.factory";
 
-const app = express();
+const { server } = AppFactory.create("prod");
 
-const server = new Server(app);
-
-server.start();
+server.start(4001);
