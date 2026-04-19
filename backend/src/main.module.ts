@@ -27,7 +27,7 @@ export class MainModule implements IAppModule {
 
     // Controllers
     const authController = new AuthController(authService);
-    const flatController = new FlatController(flatService, authService);
+    const flatController = new FlatController(flatService, landlordService);
     const tenantController = new TenantController(tenantService);
 
     // Routers

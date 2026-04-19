@@ -1,4 +1,4 @@
-import type { Flat, Landlord, NewPayment, Payment, Tenant } from "@/schemas";
+import type { Flat, Landlord, NewPayment, Payment, RentPayment, Tenant } from "@/schemas";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
 import type { LoginLandlordInput, RegisterLandlordInput, UpdateLandlordPlanInput } from "@/validations/landlord.validation";
 import type { InsertPaymentInput } from "@/validations/payment.validation";
@@ -58,4 +58,10 @@ export interface IPaymentService {
 export interface ISubscriptionService {
   // subscribe: (input: SubscriptionInput, landlordId: string) => Promise<Payment | undefined>;
   subscribe: (landlordId: string, input: SubscriptionInput) => Promise<void>;
+}
+
+export interface IStatisticsService {
+  // subscribe: (input: SubscriptionInput, landlordId: string) => Promise<Payment | undefined>;
+  due: (landlordId: string, interval: "year" | "month") => Promise<RentPayment[]>;
+  duebyTenant: (landlordId: string, tenantId: string, interval: "year" | "month") => Promise<RentPayment[]>;
 }
