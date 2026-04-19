@@ -1,7 +1,7 @@
-import { AuthController } from "@/auth/auth.controller";
-import { FakeAuthService } from "@/auth/auth.fake.service";
-import { AuthRouter } from "@/auth/auth.router";
 import type { IAppModule } from "@/interfaces";
+import { AuthController } from "@/services/auth/auth.controller";
+import { FakeAuthService } from "@/services/auth/auth.fake.service";
+import { AuthRouter } from "@/services/auth/auth.router";
 import type { Application } from "express";
 
 export class TestModule implements IAppModule {

@@ -36,3 +36,8 @@ export interface ITenantService {
   unArchive: (id: string, landlordId: string) => Promise<Tenant | undefined>;
   remove: (id: string, landlordId: string) => Promise<Tenant | undefined>;
 }
+
+
+export interface ISubscriptionService {
+  create: (input: RegisterTenantInput, landlordId: string) => Promise<Tenant | undefined>;
+}

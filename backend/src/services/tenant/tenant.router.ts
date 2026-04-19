@@ -3,7 +3,7 @@ import { deleteFlat, getFlats, registerFlat } from "@/controllers/flat.controlle
 import type { FlatController } from "@/flat/flat.controller";
 import { verifyClientToken } from "@/middlewares/verify-client-token.middleware";
 import { verifySubscription } from "@/middlewares/verify-subscription.middleware";
-import type { TenantController } from "@/tenant/tenant.controller";
+import type { TenantController } from "@/services/tenant/tenant.controller";
 import { Router } from "express";
 
 const flatRouter = Router();

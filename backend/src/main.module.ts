@@ -1,16 +1,16 @@
 // src/modules/main.module.ts
 
-import { AuthController } from "@/auth/auth.controller";
-import { AuthRouter } from "@/auth/auth.router";
-import { AuthService } from "@/auth/auth.service";
 import { db } from "@/db";
-import { FlatController } from "@/flat/flat.controller";
-import { FlatRouter } from "@/flat/flat.router";
-import { FlatService } from "@/flat/flat.service";
 import type { IAppModule } from "@/interfaces";
-import { TenantController } from "@/tenant/tenant.controller";
-import { TenantRouter } from "@/tenant/tenant.router";
-import { TenantService } from "@/tenant/tenant.service";
+import { AuthController } from "@/services/auth/auth.controller";
+import { AuthRouter } from "@/services/auth/auth.router";
+import { AuthService } from "@/services/auth/auth.service";
+import { FlatController } from "@/services/flat/flat.controller";
+import { FlatRouter } from "@/services/flat/flat.router";
+import { FlatService } from "@/services/flat/flat.service";
+import { TenantController } from "@/services/tenant/tenant.controller";
+import { TenantRouter } from "@/services/tenant/tenant.router";
+import { TenantService } from "@/services/tenant/tenant.service";
 import type { Application } from "express";
 
 export class MainModule implements IAppModule {
