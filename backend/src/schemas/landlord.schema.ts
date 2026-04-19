@@ -1,6 +1,5 @@
 import { Free } from "@/constant";
 import { flats } from "@/schemas/flat.schema";
-import { quotas } from "@/schemas/quota.schema";
 import { rentPayment } from "@/schemas/rentPayment.schema";
 import { tenants } from "@/schemas/tenant.schema";
 import { relations, type InferSelectModel } from "drizzle-orm";

@@ -1,6 +1,6 @@
 import { Premium, Standard } from "@/constant";
 import { db } from "@/db";
-import { landlords, subscriptions } from "@/schemas";
+import { landlords, payments} from "@/schemas";
 import type { SubscriptionInput } from "@/validations/subscription.validation";
 import { catchError, NotAuthorizedError } from "@fvoid/shared-lib";
 import { eq } from "drizzle-orm";
@@ -98,7 +98,7 @@ export const handleSubscriptionPurchase = async (landlordId: string, plan: "stan
       .where(eq(landlords.id, landlordId));
 
     // 4. Record Transaction History
-    await tx.insert(subscriptions).values({
+    await tx.insert(payments).values({
       landlordId: landlordId,
       planName: plan,
       durationMonths: durationMonths,

@@ -8,6 +8,7 @@ import { AuthService } from "@/services/auth/auth.service";
 import { FlatController } from "@/services/flat/flat.controller";
 import { FlatRouter } from "@/services/flat/flat.router";
 import { FlatService } from "@/services/flat/flat.service";
+import { LandlordService } from "@/services/landlord/landlord.service";
 import { TenantController } from "@/services/tenant/tenant.controller";
 import { TenantRouter } from "@/services/tenant/tenant.router";
 import { TenantService } from "@/services/tenant/tenant.service";
@@ -18,7 +19,9 @@ export class MainModule implements IAppModule {
     const BASE_PATH = "/api/v1";
 
     // Services
-    const authService = new AuthService(db);
+
+    const landlordService = new LandlordService(db);
+    const authService = new AuthService(landlordService);
     const flatService = new FlatService(db);
     const tenantService = new TenantService(db);
 

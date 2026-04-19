@@ -2,11 +2,14 @@ import type { IAppModule } from "@/interfaces";
 import { AuthController } from "@/services/auth/auth.controller";
 import { FakeAuthService } from "@/services/auth/auth.fake.service";
 import { AuthRouter } from "@/services/auth/auth.router";
+import { FakeLandlordService } from "@/services/landlord/landlord.fake.service";
 import type { Application } from "express";
 
 export class TestModule implements IAppModule {
   isTest = true;
-  public authService = new FakeAuthService();
+  public landlordService = new FakeLandlordService();
+  public authService = new FakeAuthService(this.landlordService);
+
   public set_route_middlewares(app: Application) {
     const BASE_PATH = "/api/v1";
 

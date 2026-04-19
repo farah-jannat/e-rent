@@ -1,4 +1,4 @@
-import type { IAuthService, IFlatService } from "@/interfaces";
+import type { IFlatService, ILandlordService } from "@/interfaces";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
 import { NotAuthorizedError } from "@fvoid/shared-lib";
 import type { Request, Response } from "express";
@@ -6,7 +6,7 @@ import type { Request, Response } from "express";
 export class FlatController {
   constructor(
     public flatService: IFlatService,
-    public authService: IAuthService,
+    public landlordService: ILandlordService,
   ) {}
 
   registerFlat = async (req: Request, res: Response) => {
@@ -16,7 +16,7 @@ export class FlatController {
     const formdata = req.body as RegisterFlatInput;
 
     // check for landlord
-    const newLandlord = await this.authService.findById(landlord.id);
+    const newLandlord = await this.landlordService.findById(landlord.id);
     if (!newLandlord) throw new Error("no landlord found! :(");
 
     // count landloards total flats

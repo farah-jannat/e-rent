@@ -1,6 +1,8 @@
-import type { Flat, Landlord, Tenant } from "@/schemas";
+import type { Flat, Landlord, NewPayment, Payment, Tenant } from "@/schemas";
 import type { RegisterFlatInput } from "@/validations/flat.validation";
-import type { RegisterLandlordInput } from "@/validations/landlord.validation";
+import type { LoginLandlordInput, RegisterLandlordInput, UpdateLandlordPlanInput } from "@/validations/landlord.validation";
+import type { InsertPaymentInput } from "@/validations/payment.validation";
+import type { SubscriptionInput } from "@/validations/subscription.validation";
 import type { RegisterTenantInput, UpdateTenantInput } from "@/validations/tenant.validation";
 import type { Application } from "express";
 
@@ -20,10 +22,21 @@ export interface IFlatService {
   remove: (id: string) => Promise<Flat | undefined>;
 }
 
-export interface IAuthService {
+export interface ILandlordService {
   findByEmail: (email: string) => Promise<Landlord | undefined>;
   findById: (id: string) => Promise<Landlord | undefined>;
   create: (input: RegisterLandlordInput) => Promise<Landlord | undefined>;
+  updateLandlordPlan: (landlordId: string, input: UpdateLandlordPlanInput) => Promise<Landlord | undefined>;
+}
+
+interface RegisterCredential {
+  token: string;
+  landlord: Landlord | undefined;
+}
+
+export interface IAuthService {
+  register: (input: RegisterLandlordInput) => Promise<RegisterCredential | undefined>;
+  login: (input: LoginLandlordInput) => Promise<RegisterCredential | undefined>;
 }
 
 export interface ITenantService {
@@ -37,7 +50,12 @@ export interface ITenantService {
   remove: (id: string, landlordId: string) => Promise<Tenant | undefined>;
 }
 
+export interface IPaymentService {
+  // create: (input: NewPayment, landlordId: string) => Promise<Tenant | undefined>;
+  create: (input: InsertPaymentInput) => Promise<Payment | undefined>;
+}
 
 export interface ISubscriptionService {
-  create: (input: RegisterTenantInput, landlordId: string) => Promise<Tenant | undefined>;
+  // subscribe: (input: SubscriptionInput, landlordId: string) => Promise<Payment | undefined>;
+  subscribe: (landlordId: string, input: SubscriptionInput) => Promise<void>;
 }

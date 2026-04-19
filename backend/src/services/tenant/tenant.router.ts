@@ -1,6 +1,5 @@
 import { config } from "@/config";
 import { deleteFlat, getFlats, registerFlat } from "@/controllers/flat.controller";
-import type { FlatController } from "@/flat/flat.controller";
 import { verifyClientToken } from "@/middlewares/verify-client-token.middleware";
 import { verifySubscription } from "@/middlewares/verify-subscription.middleware";
 import type { TenantController } from "@/services/tenant/tenant.controller";

@@ -1,9 +1,10 @@
 import { landlords } from "@/schemas/landlord.schema";
+import type { InferSelectModel,InferInsertModel } from "drizzle-orm";
 import { pgTable, uuid, text, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
 
 export const paymentMethodEnum = pgEnum("payment_method", ["bkash", "nagad", "sslcommerz", "manual"]);
 
-export const subscriptions = pgTable("subscriptions", {
+export const payments = pgTable("payments", {
   id: uuid("id").defaultRandom().primaryKey(),
   landlordId: uuid("landlord_id").references(() => landlords.id).notNull(),
   
@@ -22,3 +23,7 @@ export const subscriptions = pgTable("subscriptions", {
   
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+
+export type Payment = InferSelectModel<typeof payments>;
+export type NewPayment = InferInsertModel<typeof payments>;

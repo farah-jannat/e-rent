@@ -1,44 +1,65 @@
+import { config } from "@/config";
 import type { SqlDB } from "@/db";
-import type { IAuthService } from "@/interfaces";
-import { landlords } from "@/schemas";
-import type { RegisterLandlordInput } from "@/validations/landlord.validation";
-import { catchError } from "@fvoid/shared-lib";
-import { eq } from "drizzle-orm";
+import type { IAuthService, ILandlordService } from "@/interfaces";
+import { hashPassword, verifyPassword } from "@/utils/hashing.util";
+import type { LoginLandlordInput, RegisterLandlordInput } from "@/validations/landlord.validation";
+import { BadRequestError } from "@fvoid/shared-lib";
+import jwt from "jsonwebtoken";
 
 export class AuthService implements IAuthService {
-  constructor(public db: SqlDB) {}
+  constructor(public landlordService: ILandlordService) {}
 
-  async findByEmail(email: string) {
-    const [landlordError, landlord] = await catchError(
-      this.db.query.landlords.findFirst({
-        where: eq(landlords.email, email),
-      }),
-    );
+  async register(formData: RegisterLandlordInput) {
+    const landlord = await this.landlordService.findByEmail(formData.email);
+    if (landlord) throw new Error("you already exist!");
 
-    if (landlordError) throw new Error("DB error!");
-    return landlord;
+    // hash the password
+    const hashedPassword = await hashPassword(formData.password);
+    const registerData: RegisterLandlordInput = {
+      ...formData,
+      password: hashedPassword,
+    };
+
+    // create a landlord
+    const insertLandlord = await this.landlordService.create(registerData);
+
+    // prepare token data
+    const payload = {
+      id: registerData?.id,
+      email: registerData?.email,
+      name: registerData?.name,
+      exp: Math.floor(Date.now() / 1000) + 24 * 7 * 3600,
+    };
+
+    // create token
+    const token = jwt.sign(payload, config.JWT_TOKEN);
+
+    return { token, landlord: insertLandlord };
   }
 
-  async findById(id: string) {
-    const [landlordError, landlord] = await catchError(
-      this.db.query.landlords.findFirst({
-        where: eq(landlords.id, id),
-      }),
-    );
+  async login(formData: LoginLandlordInput) {
+    // check for landlord
+    const landlord = await this.landlordService.findByEmail(formData.email);
+    if (!landlord) throw new Error("User are not found with this email! -_-");
 
-    if (landlordError) throw new Error("DB error!");
-    return landlord;
-  }
+    // verity password
+    const isPasswordValid = await verifyPassword(formData.password, landlord.password);
+    if (!isPasswordValid) throw new BadRequestError("Invalid credentials");
 
-  async create(input: RegisterLandlordInput) {
-    const [insertLandlordError, insertLandlord] = await catchError(
-      this.db
-        .insert(landlords)
-        .values(input)
-        .returning()
-        .then((res) => res[0]),
-    );
-    if (insertLandlordError) throw new Error("Db error inserting");
-    return insertLandlord;
+    // generate jwt
+    const payload = {
+      id: landlord?.id,
+      email: landlord.email,
+      exp: Math.floor(Date.now() / 1000) + 24 * 7 * 3600,
+    };
+    const token = jwt.sign(payload, config.JWT_TOKEN);
+
+    return { token, landlord: landlord };
   }
 }
+
+// const hi = ()=> {
+//   // const landlord = await this.landlordService.findByEmail(formData.email);
+//   // if (landlord) throw new Error("you already exist!");
+//   return new Error("you already exist!");
+// };

@@ -1,4 +1,4 @@
-import type { AuthController } from "@/auth/auth.controller";
+import type { AuthController } from "@/services/auth/auth.controller";
 import { loginLandlordSchema } from "@/validations/landlord.validation";
 import { validateData } from "@fvoid/shared-lib";
 import { Router } from "express";
